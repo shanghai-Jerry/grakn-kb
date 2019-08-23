@@ -153,7 +153,7 @@
           </descriptorRefs>
           <archive>
             <manifest>
-              <mainClass></mainClass>
+              <mainClass>com.higgs.grakn.data.CompanyDeptMigration</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -180,6 +180,22 @@
 
   <dependencies>
     <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-core</artifactId>
+      <version>[3.5.4,)</version>
+      <exclusions>
+        <exclusion>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-handler</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-codec-http2</artifactId>
+        </exclusion>
+      </exclusions>
+
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.12</version>
@@ -205,5 +221,12 @@
       <artifactId>lang</artifactId>
       <version>1.0.1</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/commons-lang/commons-lang -->
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+    </dependency>
+
   </dependencies>
 </project>
