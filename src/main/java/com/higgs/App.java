@@ -1,5 +1,8 @@
 package com.higgs;
 
+import com.higgs.grakn.Schema;
+import com.higgs.grakn.Variable;
+
 import grakn.client.GraknClient;
 import graql.lang.Graql;
 import graql.lang.query.GraqlInsert;

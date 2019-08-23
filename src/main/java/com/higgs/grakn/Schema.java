@@ -13,6 +13,7 @@ public class Schema {
 
   // 实体
   public enum Entity {
+    ENTITY("entitytype-entity"),
     ENTITY_TYPE("entitytype-entity"),
     SKILL("skill"),
     DIRECTION("direction"),
