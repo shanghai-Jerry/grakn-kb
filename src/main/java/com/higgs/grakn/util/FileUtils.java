@@ -1,4 +1,4 @@
-package com.higgs.grakn;
+package com.higgs.grakn.util;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,7 +33,7 @@ public class FileUtils {
    * 读取对应的quey语句文件
    *
    * @param filePath fileName对应QueryType的枚举值
-   * @return query
+   * @return Query
    * @throws IOException 读取文件异常
    */
   public static String readQueryFile(String filePath) {
@@ -333,4 +333,5 @@ public class FileUtils {
   public static void deleteFile(String filePath) {
     new File(filePath).delete();
   }
+
 }

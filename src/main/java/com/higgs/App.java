@@ -1,7 +1,8 @@
 package com.higgs;
 
-import com.higgs.grakn.Schema;
-import com.higgs.grakn.Variable;
+import com.higgs.grakn.client.HgraknClient;
+import com.higgs.grakn.client.schema.Schema;
+import com.higgs.grakn.variable.Variable;
 
 import grakn.client.GraknClient;
 import graql.lang.Graql;
@@ -14,7 +15,6 @@ import static graql.lang.Graql.var;
  *
  */
 public class App {
-
     // insert all new data
     public void insert(GraknClient.Session session) {
         // Insert a person using a WRITE transaction
@@ -52,7 +52,7 @@ public class App {
 
     public static void main( String[] args ) {
         App app = new App();
-        HgraknClient hgraknClient = new HgraknClient(Variable.GRAKN_ADDRESS);
+        HgraknClient hgraknClient = new HgraknClient(Variable.GRAKN_ADDRESS,  Variable.KEY_SPACE);
         GraknClient.Session session =  hgraknClient.getClient().session(Variable.KEY_SPACE);
         //  transactions, sessions and clients must always be closed
         app.match_insert(session);

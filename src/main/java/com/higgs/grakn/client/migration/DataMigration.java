@@ -1,8 +1,10 @@
-package com.higgs.grakn;
+package com.higgs.grakn.client.migration;
 
 import com.google.gson.stream.JsonReader;
 
-import com.higgs.grakn.data.DataHandler;
+import com.higgs.grakn.variable.Variable;
+import com.higgs.grakn.client.HgraknClient;
+import com.higgs.grakn.util.TimeUtil;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -13,14 +15,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicLong;
 
 import grakn.client.GraknClient;
 import graql.lang.query.GraqlQuery;
@@ -41,12 +40,25 @@ public class DataMigration {
 
   static Logger logger = LoggerFactory.getLogger(DataMigration.class);
 
-  private int numThread = 20;
+  private HgraknClient hgraknClient = new HgraknClient(Variable.GRAKN_ADDRESS, Variable.PHONE_CALL_KEY_SPACE);
 
-  private AtomicLong counter = new AtomicLong(0);
-  ExecutorService executor = Executors.newFixedThreadPool(numThread);
-  ExecutorCompletionService executorCompletionService = new ExecutorCompletionService(executor);
+  private int batchSize = 10000;
 
+  public int getBatchSize() {
+    return batchSize;
+  }
+
+  public void setBatchSize(int batchSize) {
+    this.batchSize = batchSize;
+  }
+
+  public HgraknClient getHgraknClient() {
+    return hgraknClient;
+  }
+
+  public void setHgraknClient(HgraknClient hgraknClient) {
+    this.hgraknClient = hgraknClient;
+  }
   public String stringFormatSql(String var) {
     return "\"" + var + "\"";
   }
@@ -59,109 +71,75 @@ public class DataMigration {
   }
 
   public void defaultConnectAndMigrate(Collection<Input> inputs) {
-    HgraknClient hgraknClient = new HgraknClient(Variable.GRAKN_ADDRESS);
-    GraknClient.Session session = hgraknClient.getClient().session(Variable.PHONE_CALL_KEY_SPACE);
     for (Input input : inputs) {
       logger.info("Loading from [" + input.getDataPath() + "] into Grakn, started_at " +
           new Date().toString());
-      loadDataIntoGrakn(input, session);
+      loadDataIntoGrakn(input, 10000);
     }
-
-    session.close();
     hgraknClient.close();
   }
 
-  public void connectAndMigrate(Collection<Input> inputs, GraknClient.Session session) {
+  // commit with batchSize
+  public void connectAndMigrate(Collection<Input> inputs) {
     for (Input input : inputs) {
+      long startTime = System.currentTimeMillis();
       logger.info("Loading from [" + input.getDataPath() + "] into Grakn, started_at " +
           new Date().toString());
-      loadDataIntoGraknThread(input, session);
-      long ret = 0;
-      for (int i = 0; i < this.numThread; i++) {
-        try {
-          executorCompletionService.take();
-          logger.info("Loading from [" + input.getDataPath() + "] into Grakn, finished: " + ret);
-        } catch (Exception e) {
-          logger.info("[ExecutorCompletionService Future Get error] -> " + e.getMessage());
-        }
-      }
-      logger.info("Inserted "+ ret + " items from [ "
-          + input.getDataPath() + "]" + " into Grakn, ended_at "+ new Date().toString() +"\n");
-
-
-    }
-
-    session.close();
-  }
-
-  void loadDataIntoGraknThread(Input input, GraknClient.Session session) {
-    List<JsonObject> items = input.parseDataToJson();
-    int totalLength = items.size();
-    logger.info("Loading from [" + input.getDataPath() + "] into Grakn, totalSize:" + totalLength);
-    int batchSize = totalLength / this.numThread;
-    for (int i = 0; i < this.numThread; i++) {
-      if (i == this.numThread - 1) {
-        executorCompletionService.submit(new DataHandler(input, session, items.subList(i * batchSize,totalLength)));
-      } else {
-        executorCompletionService.submit(new DataHandler(input, session, items.subList(i * batchSize, (i+1)
-            *batchSize)));
-      }
+      long total = loadDataIntoGrakn(input, this.batchSize);
+      long endTime = System.currentTimeMillis();
+      long cost = (endTime - startTime) / 1000;
+      logger.info("Inserted [ " + total +" ] items from [ " + input.getDataPath() + "] into " +
+          "Grakn, ended_at " + new Date().toString() + ",cost:" + TimeUtil.costTime(cost) + "\n");
     }
   }
 
-  void loadDataIntoGrakn(Input input, GraknClient.Session session) {
-    List<JsonObject> items = input.parseDataToJson();
+  long loadDataIntoGrakn(Input input, int batchSize) {
+    List<JsonObject> data = input.parseDataToJson();
     int count = 0;
-    for (JsonObject item : items) {
-      count++;
-      GraknClient.Transaction transaction = session.transaction().write();
-      GraqlQuery graqlInsertQuery = input.template(item);
-      //
-      transaction.execute(graqlInsertQuery);
-      transaction.commit();
-      if (count % 1000 == 0) {
-        logger.info("Executing Graql Insert : " + count + "/" + items.size());
+    int finished = 0;
+    GraknClient.Session session = hgraknClient.NewSession(hgraknClient.getKeySpace());
+    GraknClient.Transaction transaction = session.transaction().write();
+    try {
+      for (JsonObject item : data) {
+        count++;
+        finished++;
+        GraqlQuery graqlInsertQuery = input.template(item);
+        transaction.execute(graqlInsertQuery);
+        if (count % batchSize == 0) {
+          logger.info(Thread.currentThread().getName()+" - Executing Graql Insert: " +
+              finished + "/" + data.size());
+          transaction.commit();
+          transaction = session.transaction().write();
+          count = 0;
+        }
       }
+      if (count > 0) {
+        // commit when last item finished
+        transaction.commit();
+      }
+    } catch (Exception e) {
+
+      logger.info("[commit error] => " + e.getMessage());
+    } finally {
+      session.close();
     }
-    logger.info("\nInserted " + items.size() + " items from [ " + input.getDataPath() + "]" +
-        " into Grakn, ended_at "+ new Date().toString() +"\n");
-    items.clear();
+    return data.size();
   }
 
-  public  Reader getReader(String relativePath) throws FileNotFoundException {
-    return new InputStreamReader(new FileInputStream(relativePath));
-  }
-
-  // 自定义的数据格式
-  public Collection<Input> customDataFormatInput(String dir){
-      Collection<Input> inputs = new ArrayList<>();
-      dir = dirFormat(dir);
-      inputs.add(new Input("/path/file") {
-        @Override
-        public GraqlQuery template(JsonObject call) {
-          // match caller
-          return null;
-        }
-
-        @Override
-        public List<JsonObject> parseDataToJson() {
-          List<JsonObject> items = new ArrayList<>();
-          List<String> contents = new ArrayList<>();
-          FileUtils.readFiles(this.getDataPath(), contents);
-          for(String content : contents) {
-            items.add(new JsonObject(content));
-          }
-          return items;
-        }
-      });
-      return inputs;
+  public Reader getReader(String relativePath) throws FileNotFoundException {
+    try {
+      return new InputStreamReader(new FileInputStream(relativePath),  "utf-8");
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+    return null;
   }
 
   Collection<Input> initialiseInputs(String dataDir) {
     Collection<Input> inputs = new ArrayList<>();
     int index = 0;
     dataDir = dirFormat(dataDir);
-    // define template for constructing a company Graql insert query
+    // define template for constructing a company Graql insert Query
     inputs.add(new Input(dataDir + "companies") {
       @Override
       public GraqlQuery template(JsonObject company) {
@@ -204,7 +182,7 @@ public class DataMigration {
         return items;
       }
     });
-    // define template for constructing a person Graql insert query
+    // define template for constructing a person Graql insert Query
     inputs.add(new Input(dataDir + "people") {
       @Override
       public GraqlQuery template(JsonObject person) {
@@ -260,7 +238,7 @@ public class DataMigration {
         return items;
       }
     });
-    // define template for constructing a contract Graql insert query
+    // define template for constructing a contract Graql insert Query
     inputs.add(new Input(dataDir +"contracts") {
       @Override
       public GraqlQuery template(JsonObject contract) {
@@ -269,7 +247,7 @@ public class DataMigration {
             (contract.getString("company_name")));
         sqls.add(" $customer isa person, has phone-number " + stringFormatSql(contract
             .getString("person_id")));
-        sqls.add(" insert (provider: $company, customer: $customer) isa contract");
+        sqls.add(" insert (provider: $company, customer: $customer) isa contract;");
         return parse(StringUtils.join(sqls, ";"));
       }
 
@@ -303,7 +281,7 @@ public class DataMigration {
         return items;
       }
     });
-    // define template for constructing a call Graql insert query
+    // define template for constructing a call Graql insert Query
     inputs.add(new Input(dataDir +"calls") {
       @Override
       public GraqlQuery template(JsonObject call) {
@@ -351,5 +329,11 @@ public class DataMigration {
       }
     });
     return inputs;
+  }
+
+
+  public static void main(String[] args) {
+    DataMigration dataMigration = new DataMigration();
+    dataMigration.defaultConnectAndMigrate(dataMigration.initialiseInputs("/Users/devops/workspace/kb/phone_calls"));
   }
 }

@@ -1,4 +1,4 @@
-package com.higgs.grakn;
+package com.higgs.grakn.client.schema;
 
 /**
  * User: JerryYou

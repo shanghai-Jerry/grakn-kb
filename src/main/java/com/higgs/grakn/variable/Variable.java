@@ -1,4 +1,4 @@
-package com.higgs.grakn;
+package com.higgs.grakn.variable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,8 +10,8 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * User: JerryYou
@@ -26,11 +26,11 @@ public class Variable {
 
   public  static String GRAKN_ADDRESS = "172.20.0.8:48555";
 
+  public  static String GRAKN_ADDRESS_KB = "172.20.0.9:48555";
+
   public  static String PHONE_CALL_KEY_SPACE = "phone_calls";
 
-  public  static String KEY_SPACE = "kb";
-
-  public static Map<Integer, String> relsId2nameMap;
+  public  static String KEY_SPACE = "kb1";
 
   public static  String stringFormatSql(String var) {
     return "\"" + var + "\"";
@@ -41,6 +41,22 @@ public class Variable {
       dataDir = dataDir + "/";
     }
     return dataDir;
+  }
+
+  public static String getVarValue(String type ,String key)  {
+    MessageDigest md = null;
+    String var = type + "-" + getMD5(key);
+    return var;
+  }
+
+  public static String getRelVarValue(String relType ,String... key)  {
+    MessageDigest md = null;
+    String var = relType;
+    List<String> keys = Arrays.asList(key);
+    for (int i = 0; i < keys.size();i ++) {
+      var = var + "-" + getMD5(keys.get(i));
+    }
+    return var;
   }
 
   public static String getMD5(String key)  {

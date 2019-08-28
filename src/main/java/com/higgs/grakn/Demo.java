@@ -1,6 +1,6 @@
 package com.higgs.grakn;
 
-import java.util.Collection;
+import com.higgs.grakn.util.TimeUtil;
 
 /**
  * User: JerryYou
@@ -14,9 +14,6 @@ import java.util.Collection;
 public class Demo {
 
   public static void main(String[] args) {
-    DataMigration dataMigration = new DataMigration();
-    Collection<Input> inputs = dataMigration.initialiseInputs
-        ("/Users/devops/workspace/kb/phone_calls");
-    dataMigration.defaultConnectAndMigrate(inputs);
+    System.out.println(TimeUtil.costTime(3661));
   }
 }

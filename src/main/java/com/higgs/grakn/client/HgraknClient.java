@@ -1,4 +1,4 @@
-package com.higgs.grakn;
+package com.higgs.grakn.client;
 
 import grakn.client.GraknClient;
 
@@ -15,9 +15,17 @@ public class HgraknClient {
 
   GraknClient client;
 
-  public HgraknClient(String address) {
-    client = new GraknClient(address);
+  public String getKeySpace() {
+    return keySpace;
   }
+
+  String keySpace;
+
+  public HgraknClient(String address, String keySpace) {
+    client = new GraknClient(address);
+    this.keySpace = keySpace;
+  }
+
 
   public GraknClient.Session NewSession(String keySpace) {
     return  client.session(keySpace);

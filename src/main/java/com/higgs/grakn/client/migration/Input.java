@@ -1,4 +1,4 @@
-package com.higgs.grakn;
+package com.higgs.grakn.client.migration;
 
 import java.util.List;
 
