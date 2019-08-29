@@ -1,7 +1,6 @@
 package com.higgs.grakn.query;
 
 import com.higgs.grakn.client.HgraknClient;
-import com.higgs.grakn.client.schema.Schema;
 import com.higgs.grakn.hadoop.CompanyEntity4GraknMapred;
 import com.higgs.grakn.util.TimeUtil;
 import com.higgs.grakn.variable.Variable;
@@ -10,14 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import grakn.client.GraknClient;
-import grakn.core.concept.answer.ConceptMap;
+import grakn.core.concept.answer.Numeric;
 import graql.lang.Graql;
-import graql.lang.query.GraqlGet;
-import graql.lang.query.GraqlQuery;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-
-import static graql.lang.Graql.var;
 
 /**
  * User: JerryYou
@@ -37,43 +32,25 @@ public class Kbquery {
 
   void query() {
     long st = System.currentTimeMillis();
-    // Query
-    GraqlGet.Unfiltered unfiltered = Graql.match(
-            var("c")
-                .isa(Schema.Entity.ENTITY_TYPE.getName())
-                .has(Schema.Attribute.NAME.getName(), "沃尔玛")
-                .has(Schema.Attribute.CORP_TYPE.getName(), var("1"))
-    ).get("1");
-
+    String query = "match\n" + "  $1 isa entitytype-entity, has name \"世界五百强\";\n" + "  $2 isa " +
+        "entitytype-entity, has name \"沃尔玛\";\n" + "  $4 (company-corptype:$1," +
+        "corptype-company:$2)" +
+        " isa company-corp-type;\n" + " get ;count;";
     int page = 1;
     int pageSize = 100;
-    List<String> names = new ArrayList<>();
     GraknClient.Transaction readTransaction = session.transaction().read();
-    while (true) {
       int offset = (page - 1) * pageSize;
-      GraqlQuery query = unfiltered.offset(offset).limit(pageSize);
-      List<ConceptMap> answers = (List<ConceptMap>) readTransaction.execute(query);
+      String finalQuery = query + " offset " + offset + "; limit " + pageSize + ";";
+      List<Numeric> answers = readTransaction.execute(Graql.parse(query).asGetAggregate());
       List<String> tmps = new ArrayList<>();
-      answers.forEach(
-          answer -> tmps.add(answer.get("1").asAttribute().value().toString())
-      );
-      if (tmps.size() == 0 || tmps.size() != pageSize) {
-        break;
-      } else {
-        names.addAll(tmps);
-      }
-      page++;
-      System.out.println("page:" + page);
-    }
 
+      answers.forEach(
+          answer -> logger.info("count:" + answer.number().intValue())
+      );
     long et = System.currentTimeMillis();
 
-    System.out.println("total:"+ names.size() + ",cost: "+ TimeUtil.costTime((et - st)/1000) +
-        ",st:" + st + ",et:" + et);
+    System.out.println(",cost: "+ TimeUtil.costTime(st,et) +",st:" + st + ",et:" + et);
     readTransaction.close();
-    for (String item : names) {
-      logger.info("item:" + item);
-    }
   }
 
   void compute() {

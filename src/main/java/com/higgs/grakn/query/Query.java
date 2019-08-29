@@ -1,7 +1,6 @@
 package com.higgs.grakn.query;
 
 import com.higgs.grakn.client.HgraknClient;
-import com.higgs.grakn.client.schema.Schema;
 import com.higgs.grakn.util.TimeUtil;
 import com.higgs.grakn.variable.Variable;
 
@@ -12,9 +11,6 @@ import grakn.client.GraknClient;
 import grakn.core.concept.answer.ConceptMap;
 import graql.lang.Graql;
 import graql.lang.query.GraqlGet;
-import graql.lang.query.GraqlQuery;
-
-import static graql.lang.Graql.var;
 
 /**
  * User: JerryYou
@@ -32,26 +28,17 @@ public class Query {
 
   void query() {
     long st = System.currentTimeMillis();
+    String query = "match\n" + "\n" + " $1 isa entitytype-entity, has name \"世界五百强\";\n" + " $2 " +
+        "isa entitytype-entity, has name $3;\n" + " $4 (company-corptype:$1,corptype-company:$2) isa company-corp-type;\n" + " get $3;";
     // Query
-    GraqlGet.Unfiltered unfiltered = Graql.match(
-        var("c")
-            .isa(Schema.Entity.ENTITY_TYPE.getName())
-            .has(Schema.Attribute.NAME.getName(), "#海宁皮革制衣厂"),
-        var("d").isa(Schema.Entity.ENTITY_TYPE.getName())
-            .has(Schema.Attribute.NAME.getName(), var("n")),
-        var("c-d").isa(Schema.RelType.COMPANY_DEPARTMENT.getName())
-            .rel(Schema.Relations.HAS_DEPARTMENT.getName(),var("d"))
-            .rel(Schema.Relations.DEPARTMENT_IN.getName(), var("c"))
-    ).get("n");
-
     int page = 1;
     int pageSize = 100;
     List<String> names = new ArrayList<>();
     GraknClient.Transaction readTransaction = session.transaction().read();
     while (true) {
       int offset = (page - 1) * pageSize;
-      GraqlQuery query = unfiltered.offset(offset).limit(pageSize);
-      List<ConceptMap> answers = (List<ConceptMap>) readTransaction.execute(query);
+      query += "offset " + offset + "; limit " + pageSize + ";";
+      List<ConceptMap> answers = readTransaction.execute((GraqlGet) Graql.parse(query));
       List<String> tmps = new ArrayList<>();
       answers.forEach(
           answer -> tmps.add(answer.get("n").asAttribute().value().toString())
@@ -67,7 +54,7 @@ public class Query {
 
     long et = System.currentTimeMillis();
 
-    System.out.println("total:"+ names.size() + ",cost: "+ TimeUtil.costTime((et - st)/1000) +
+    System.out.println("total:"+ names.size() + ",cost: "+ TimeUtil.costTime(st, et) +
         ",st:" + st + ",et:" + et);
     readTransaction.close();
   }

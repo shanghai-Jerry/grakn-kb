@@ -1,0 +1,17 @@
+# 世界五百强公司有哪些
+
+match
+
+ $1 isa entitytype-entity, has name "世界五百强";
+ $2 isa entitytype-entity, has name $3;
+ $4 (company-corptype:$1,corptype-company:$2) isa company-corp-type;
+ get $3; count;
+
+
+ # 某个公司是不是世界五百强
+
+ match
+  $1 isa entitytype-entity, has name "世界五百强";
+  $2 isa entitytype-entity, has name "百度";
+  $4 (company-corptype:$1,corptype-company:$2) isa company-corp-type;
+  get $3; count;

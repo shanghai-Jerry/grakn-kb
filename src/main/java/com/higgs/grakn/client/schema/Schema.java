@@ -15,10 +15,26 @@ public class Schema {
   public enum Entity {
     ENTITY("entitytype-entity"),
     ENTITY_TYPE("entitytype-entity"),
-    SKILL("skill"),
-    DIRECTION("direction"),
-    COMPANY("company"),
-    DEPARTMENT("department")
+    KEYWORD("关键词"),
+    JOB_FUNCTION("职能"),
+    DIRECTION("方向"),
+    INDUSTRY("行业"),
+    SKILL("技能"),
+    TOPIC("主题"),
+    CERTIFICATE("证书"),
+    MAJOR("专业"),
+    SCHOOL("学校"),
+    COMPANY("公司"),
+    MAJOR_CATEGORY("专业大类"),
+    MAJOR_DISCIPLINE("专业学科"),
+    LOCATION("城市"),
+    KNOW_NOT_RECOGNIZE("已知未识别"),
+    CONSENSUS("共识"),
+    JOB_TITLE("职位"),
+    JOB_RANK("职级"),
+    ATTRIBUTE("属性值类型"),
+    IT_ORANGE_INDUSTRY("IT桔子行业"),
+    DEPARTMENT("部门")
     ;
     private String name;
     Entity(String name) {

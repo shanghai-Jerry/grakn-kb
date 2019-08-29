@@ -38,7 +38,7 @@ public class KbParseData {
     return null;
   }
 
-  static  public void parseAttribute(List<JsonObject> items, String attributeType,String path) {
+  static  public void parseAttribute(List<JsonObject> items, String attributeType, String path) {
     try {
       CsvReader csvReader = new CsvReader(getReader(path));
       while(csvReader.readRecord()) {
@@ -49,7 +49,7 @@ public class KbParseData {
         JsonObject json = new JsonObject();
         json.put("name", values[0])
             .put("attribute_type", attributeType)
-            .put("attribute_value", values[1])
+            .put("attribute_value", values[2])
         ;
         items.add(json);
       }
@@ -60,7 +60,32 @@ public class KbParseData {
     }
   }
 
-  static  public void parseRelationsInAttribute(List<JsonObject> items, String path) {
+  static  public void parseRelations(List<JsonObject> items, String inRel, String outRel,
+                                     String relType, String path) {
+    try {
+      CsvReader csvReader = new CsvReader(getReader(path));
+      while(csvReader.readRecord()) {
+        String [] values = csvReader.getValues();
+        if (values.length != 4) {
+          continue;
+        }
+        JsonObject json = new JsonObject();
+        json.put("in_value", values[0])
+            .put("out_value", values[1])
+            .put("in", inRel)
+            .put("out", outRel)
+            .put("rel_type",relType)
+        ;
+        items.add(json);
+      }
+    } catch (FileNotFoundException e) {
+      logger.info("[NoFile] =>" + e.getMessage());
+    } catch (IOException e) {
+      logger.info("[IOExp] =>" + e.getMessage());
+    }
+  }
+
+  static  public void parseCorpTypeRelationsInAttribute(List<JsonObject> items, String path) {
     try {
       CsvReader csvReader = new CsvReader(getReader(path));
       while(csvReader.readRecord()) {

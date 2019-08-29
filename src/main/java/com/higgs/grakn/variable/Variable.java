@@ -1,5 +1,7 @@
 package com.higgs.grakn.variable;
 
+import com.higgs.grakn.client.schema.Schema;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,6 +39,30 @@ public class Variable {
   public static  String stringFormatSql(String var) {
     return "\"" + var + "\"";
   }
+
+  public static List<String> entityTypeList = Arrays.asList(
+      Schema.Entity.KEYWORD.getName(),
+      Schema.Entity.JOB_FUNCTION.getName(),
+      Schema.Entity.DIRECTION.getName(),
+      Schema.Entity.INDUSTRY.getName(),
+      Schema.Entity.SKILL.getName(),
+      Schema.Entity.TOPIC.getName(),
+      Schema.Entity.CERTIFICATE.getName(),
+      Schema.Entity.MAJOR.getName(),
+      Schema.Entity.SCHOOL.getName(),
+      Schema.Entity.COMPANY.getName(),
+      Schema.Entity.MAJOR_CATEGORY.getName(),
+      Schema.Entity.MAJOR_DISCIPLINE.getName(),
+      Schema.Entity.LOCATION.getName(),
+      Schema.Entity.KNOW_NOT_RECOGNIZE.getName(),
+      Schema.Entity.CONSENSUS.getName(),
+      Schema.Entity.JOB_TITLE.getName(),
+      Schema.Entity.DEPARTMENT.getName(),
+      Schema.Entity.JOB_RANK.getName(),
+      Schema.Entity.ATTRIBUTE.getName(),
+      Schema.Entity.IT_ORANGE_INDUSTRY.getName()
+  );
+
 
   public static String dirFormat(String dataDir, boolean isDir) {
     if (!dataDir.endsWith("/") && isDir) {

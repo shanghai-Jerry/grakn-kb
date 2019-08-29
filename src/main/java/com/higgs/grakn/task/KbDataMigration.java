@@ -2,14 +2,17 @@ package com.higgs.grakn.task;
 
 import com.csvreader.CsvReader;
 import com.higgs.grakn.client.HgraknClient;
+import com.higgs.grakn.client.migration.AttributeInput;
 import com.higgs.grakn.client.migration.DataMigration;
 import com.higgs.grakn.client.migration.Input;
+import com.higgs.grakn.client.migration.RelationInput;
 import com.higgs.grakn.client.schema.Schema;
 import com.higgs.grakn.variable.Variable;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -35,28 +38,25 @@ public class KbDataMigration extends DataMigration {
 
   public static void main(String[] args) {
 
-    if (args.length < 5) {
+    if (args.length < 3) {
       System.err.println("Usage: KbDataMigration " +
-          "<EntityName Input>" +
-          "<EntityAttribute Input> " +
-          "<EntityRelation Input> " +
+          "<InputDir>" +
           "<KeySpace>" +
           "<GraknServer>"
       );
       System.exit(-1);
     }
-    String name = Variable.dirFormat(args[0], false);
-    String attribute = Variable.dirFormat(args[1],false);
-    String relation = Variable.dirFormat(args[2],false);
-    String KEY_SPACE = args[3];
-    String graknServer = args[4];
+    String dir = Variable.dirFormat(args[0], true);
+    String KEY_SPACE = args[1];
+    String graknServer = args[2];
     // init variable
     KbDataMigration kbDataMigration = new KbDataMigration();
     HgraknClient hgraknClient = new HgraknClient(graknServer, KEY_SPACE);
     kbDataMigration.setHgraknClient(hgraknClient);
     kbDataMigration.setBatchSize(10000);
     Collection<Input> inputs = new ArrayList<>();
-    inputs.add(new Input(name) {
+    // kb_entity.csv
+    inputs.add(new Input(dir + "kb_entity.csv") {
       @Override
       public GraqlQuery template(JsonObject data) {
         String name = data.getString("name");
@@ -90,30 +90,22 @@ public class KbDataMigration extends DataMigration {
         return items;
       }
     });
-    inputs.add(new Input(attribute) {
-      @Override
-      public GraqlQuery template(JsonObject data) {
-        String name = data.getString("name");
-        String type = data.getString("attribute_type");
-        String value = data.getString("attribute_value");
-        String var = Variable.getVarValue(Schema.Entity.ENTITY_TYPE.getName(), name);
-        return Graql.match(
-            var(var)
-                .isa(Schema.Entity.ENTITY_TYPE.getName())
-                .has(Schema.Attribute.NAME.getName(), name)
-        ).insert(
-            var(var).has(type, value)
-        );
-      }
+    List<Input> attributeInputs = Arrays.asList(
+        new AttributeInput(dir + "corp_type.csv", Schema.Attribute.CORP_TYPE.getName()),
+        new AttributeInput(dir + "cert_code.csv", Schema.Attribute.CERT_CODE.getName()),
+        new AttributeInput(dir + "city_type.csv", Schema.Attribute.CITY_TYPE.getName()),
+        new AttributeInput(dir + "corp_alias.csv", Schema.Attribute.CORP_ALIAS.getName()),
+        new AttributeInput(dir + "corp_eng_name.csv", Schema.Attribute.CORP_ENG_NAME.getName()),
+        new AttributeInput(dir + "ind_code.csv", Schema.Attribute.IND_CODE.getName()),
+        new AttributeInput(dir + "loc_city_code.csv", Schema.Attribute.LOC_CITY_CODE.getName()),
+        new AttributeInput(dir + "loc_code.csv", Schema.Attribute.LOC_CODE.getName()),
+        new AttributeInput(dir + "major_code.csv", Schema.Attribute.MAJOR_CODE.getName()),
+        new AttributeInput(dir + "school_code.csv", Schema.Attribute.SCHOOL_CODE.getName())
+    );
+    inputs.addAll(attributeInputs);
 
-      @Override
-      public List<JsonObject> parseDataToJson() {
-        List<JsonObject> items = new ArrayList<>();
-        KbParseData.parseAttribute(items, Schema.Attribute.CORP_TYPE.getName(), this.getDataPath());
-        return items;
-      }
-    });
-    inputs.add(new Input(relation) {
+    // 公司 - 公司类型之间的关系
+    inputs.add(new Input(dir + "corp_type.csv") {
       @Override
       public GraqlQuery template(JsonObject data) {
         String in_value = data.getString("in_value");
@@ -131,18 +123,20 @@ public class KbDataMigration extends DataMigration {
                 .has(Schema.Attribute.NAME.getName(), out_value)
         ).insert(
           var(relVar).isa(Schema.RelType.COMPANY_CORP_TYPE.getName())
-              .rel(Schema.Relations.CORPTYPE_COMPANY.getName(), var(inVar))
-              .rel(Schema.Relations.COMPANY_CORPTYPE.getName(), var(outVar))
+              .rel(in, var(inVar))
+              .rel(out, var(outVar))
         );
       }
 
       @Override
       public List<JsonObject> parseDataToJson() {
         List<JsonObject> items = new ArrayList<>();
-        KbParseData.parseRelationsInAttribute(items, this.getDataPath());
+        KbParseData.parseCorpTypeRelationsInAttribute(items, this.getDataPath());
         return items;
       }
     });
+    // 关系input
+    inputs.add(new RelationInput(dir + "xxxx.csv"));
 
     kbDataMigration.connectAndMigrate(inputs);
 

@@ -17,4 +17,12 @@ public class TimeUtil {
     long second = (cost - hour * 3600 - min * 60);
     return  hour + "时" + min + "分" + second + "秒";
   }
+
+  public static String costTime(long st, long et) {
+    long cost = et/1000 - st/1000;
+    long hour = cost / 3600;
+    long min = (cost - hour * 3600) / 60;
+    long second = (cost - hour * 3600 - min * 60);
+    return  hour + "时" + min + "分" + second + "秒";
+  }
 }
