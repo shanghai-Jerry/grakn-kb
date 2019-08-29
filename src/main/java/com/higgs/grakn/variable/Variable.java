@@ -28,12 +28,21 @@ public class Variable {
 
   public  static String GRAKN_ADDRESS_KB = "172.20.0.9:48555";
 
+  public  static String LOCAL_GRAKN_ADDRESS_KB = "127.0.0.1:48555";
+
   public  static String PHONE_CALL_KEY_SPACE = "phone_calls";
 
   public  static String KEY_SPACE = "kb1";
 
   public static  String stringFormatSql(String var) {
     return "\"" + var + "\"";
+  }
+
+  public static String dirFormat(String dataDir, boolean isDir) {
+    if (!dataDir.endsWith("/") && isDir) {
+      dataDir = dataDir + "/";
+    }
+    return dataDir;
   }
 
   public static String dirFormat(String dataDir) {

@@ -1,6 +1,7 @@
 package com.higgs.grakn.task;
 
 import com.csvreader.CsvReader;
+import com.higgs.grakn.client.schema.Schema;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,16 +38,9 @@ public class KbParseData {
     return null;
   }
 
-  static  public void parseAttribute(List<JsonObject> items, String path) {
+  static  public void parseAttribute(List<JsonObject> items, String attributeType,String path) {
     try {
       CsvReader csvReader = new CsvReader(getReader(path));
-      // csvReader.readHeaders();
-      int count = csvReader.getHeaderCount();
-      if (count != 4) {
-        logger.info("csv header count error, check pls");
-        return;
-      }
-      String attributeType = csvReader.getHeader(1);
       while(csvReader.readRecord()) {
         String [] values = csvReader.getValues();
         if (values.length != 3) {
@@ -55,9 +49,35 @@ public class KbParseData {
         JsonObject json = new JsonObject();
         json.put("name", values[0])
             .put("attribute_type", attributeType)
-            .put("attribute_value", values[2])
+            .put("attribute_value", values[1])
         ;
         items.add(json);
+      }
+    } catch (FileNotFoundException e) {
+      logger.info("[NoFile] =>" + e.getMessage());
+    } catch (IOException e) {
+      logger.info("[IOExp] =>" + e.getMessage());
+    }
+  }
+
+  static  public void parseRelationsInAttribute(List<JsonObject> items, String path) {
+    try {
+      CsvReader csvReader = new CsvReader(getReader(path));
+      while(csvReader.readRecord()) {
+        String [] values = csvReader.getValues();
+        if (values.length != 3) {
+          continue;
+        }
+        String[] corps = values[1].split(",");
+        for (String corp : corps) {
+          JsonObject json = new JsonObject();
+          json.put("in_value", values[0])
+              .put("in", Schema.Relations.CORPTYPE_COMPANY.getName())
+              .put("out", Schema.Relations.COMPANY_CORPTYPE.getName())
+              .put("out_value", corp)
+          ;
+          items.add(json);
+        }
       }
     } catch (FileNotFoundException e) {
       logger.info("[NoFile] =>" + e.getMessage());

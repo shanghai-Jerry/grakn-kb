@@ -45,9 +45,9 @@ public class KbDataMigration extends DataMigration {
       );
       System.exit(-1);
     }
-    String name = Variable.dirFormat(args[0]);
-    String attribute = Variable.dirFormat(args[1]);
-    String relation = Variable.dirFormat(args[2]);
+    String name = Variable.dirFormat(args[0], false);
+    String attribute = Variable.dirFormat(args[1],false);
+    String relation = Variable.dirFormat(args[2],false);
     String KEY_SPACE = args[3];
     String graknServer = args[4];
     // init variable
@@ -109,19 +109,38 @@ public class KbDataMigration extends DataMigration {
       @Override
       public List<JsonObject> parseDataToJson() {
         List<JsonObject> items = new ArrayList<>();
-        KbParseData.parseAttribute(items, this.getDataPath());
+        KbParseData.parseAttribute(items, Schema.Attribute.CORP_TYPE.getName(), this.getDataPath());
         return items;
       }
     });
     inputs.add(new Input(relation) {
       @Override
       public GraqlQuery template(JsonObject data) {
-        return null;
+        String in_value = data.getString("in_value");
+        String out_value = data.getString("out_value");
+        String in = data.getString("in");
+        String out = data.getString("out");
+        String inVar = Variable.getVarValue(Schema.Entity.ENTITY_TYPE.getName(), in_value);
+        String outVar = Variable.getVarValue(Schema.Entity.ENTITY_TYPE.getName(), out_value);
+        String relVar = Variable.getRelVarValue(Schema.RelType.COMPANY_CORP_TYPE.getName(), in_value,
+            out_value);
+        return  Graql.match(
+            var(inVar).isa(Schema.Entity.ENTITY_TYPE.getName())
+            .has(Schema.Attribute.NAME.getName(), in_value),
+            var(outVar).isa(Schema.Entity.ENTITY_TYPE.getName())
+                .has(Schema.Attribute.NAME.getName(), out_value)
+        ).insert(
+          var(relVar).isa(Schema.RelType.COMPANY_CORP_TYPE.getName())
+              .rel(Schema.Relations.CORPTYPE_COMPANY.getName(), var(inVar))
+              .rel(Schema.Relations.COMPANY_CORPTYPE.getName(), var(outVar))
+        );
       }
 
       @Override
       public List<JsonObject> parseDataToJson() {
-        return new ArrayList<>();
+        List<JsonObject> items = new ArrayList<>();
+        KbParseData.parseRelationsInAttribute(items, this.getDataPath());
+        return items;
       }
     });
 

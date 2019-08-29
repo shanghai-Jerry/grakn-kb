@@ -93,7 +93,8 @@ public class Schema {
     MAJOR_RELATES_REL("majorrelates-rel"),
     MAJOR_DISCIPLINE_REL("majordiscipline-rel"),
     MAJOR_CATEGORY_REL("majordiscipline-rel"),
-    COMPANY_DEPARTMENT("company-dept")
+    COMPANY_DEPARTMENT("company-dept"),
+    COMPANY_CORP_TYPE("company-corp-type")
     ;
     private String name;
     RelType(String name) {
@@ -183,7 +184,9 @@ public class Schema {
     TOPIC_KEYWORD("topic-keyword"),
     MAJOR_KEYWORD("major-keyword"),
     HAS_DEPARTMENT("has_dept"),
-    DEPARTMENT_IN("dept_in")
+    DEPARTMENT_IN("dept_in"),
+    COMPANY_CORPTYPE("company-corptype"),
+    CORPTYPE_COMPANY("corptype-company")
     ;
     private String name;
     Relations(String name) {

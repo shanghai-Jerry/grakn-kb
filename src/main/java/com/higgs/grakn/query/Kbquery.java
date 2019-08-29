@@ -39,11 +39,10 @@ public class Kbquery {
     long st = System.currentTimeMillis();
     // Query
     GraqlGet.Unfiltered unfiltered = Graql.match(
-            var("x")
+            var("c")
                 .isa(Schema.Entity.ENTITY_TYPE.getName())
-                .has(Schema.Attribute.NAME.getName(), "under armour, inc.")
-                .has(Schema.Attribute.CORP_TYPE.getName(),
-                var("1"))
+                .has(Schema.Attribute.NAME.getName(), "沃尔玛")
+                .has(Schema.Attribute.CORP_TYPE.getName(), var("1"))
     ).get("1");
 
     int page = 1;
@@ -58,7 +57,7 @@ public class Kbquery {
       answers.forEach(
           answer -> tmps.add(answer.get("1").asAttribute().value().toString())
       );
-      if (tmps.size() == 0) {
+      if (tmps.size() == 0 || tmps.size() != pageSize) {
         break;
       } else {
         names.addAll(tmps);
@@ -87,7 +86,6 @@ public class Kbquery {
 
     query.query();
     // transactions, sessions and clients must always be closed
-    //  transactions, sessions and clients must always be closed
     query.session.close();
     query.hgraknClient.getClient().close();
   }
