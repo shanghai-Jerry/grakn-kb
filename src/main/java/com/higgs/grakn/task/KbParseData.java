@@ -86,13 +86,13 @@ public class KbParseData {
       CsvReader csvReader = new CsvReader(getReader(path));
       while(csvReader.readRecord()) {
         String [] values = csvReader.getValues();
-        if (values.length != 3) {
+        if (values.length != 4) {
           continue;
         }
         JsonObject json = new JsonObject();
         json.put("in_value", values[0])
             .put("out_value", values[1])
-            .put("weight", Double.valueOf(values[2]))
+            .put("weight", Double.valueOf(values[3]))
         ;
         items.add(json);
       }
