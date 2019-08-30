@@ -161,7 +161,7 @@ public class CompanyEntity4GraknMapred extends Configured implements Tool {
       private List<Statement> getName(String type,String key) {
         String var = Variable.getVarValue(type, key);
         List<Statement> statements = Graql.insert(
-            var(var).isa(Schema.Entity.ENTITY_TYPE.getName()),
+            var(var).isa(Schema.Entity.ENTITY.getName()),
             var(var).has(Schema.Attribute.NAME.getName(), key)
         ).statements();
         return statements;
@@ -179,9 +179,9 @@ public class CompanyEntity4GraknMapred extends Configured implements Tool {
         String companyDeptVar = Variable.getRelVarValue(Schema.Entity.DEPARTMENT.getName(),
             companyName, deptName);
         GraqlQuery graqlQuery = Graql.match(
-            var(companyVar).isa(Schema.Entity.ENTITY_TYPE.getName())
+            var(companyVar).isa(Schema.Entity.ENTITY.getName())
                 .has(Schema.Attribute.NAME.getName(),companyName),
-            var(departVar).isa(Schema.Entity.ENTITY_TYPE.getName()).has(Schema.Attribute.NAME.getName
+            var(departVar).isa(Schema.Entity.ENTITY.getName()).has(Schema.Attribute.NAME.getName
                 (), deptName)
         ).insert(
             var(companyDeptVar).isa(type).rel(Schema.Relations

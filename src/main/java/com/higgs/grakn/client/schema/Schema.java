@@ -13,8 +13,10 @@ public class Schema {
 
   // 实体
   public enum Entity {
+    NONE("NONE"),
+    ENTITY_TYPE_ENTITY("entity-type-entity"),
+    SCHOOL_TYPE_ENTITY("school-type-entity"),
     ENTITY("entitytype-entity"),
-    ENTITY_TYPE("entitytype-entity"),
     KEYWORD("关键词"),
     JOB_FUNCTION("职能"),
     DIRECTION("方向"),
@@ -50,6 +52,7 @@ public class Schema {
   public enum Attribute {
     ENTITY_TYPE("entity-type", "string"),
     NAME("name","string"),
+    CODE("code","long"),
     MAJOR_CODE("major-code","string"),
     CORP_TYPE("corp-type","string"),
     CORP_ALIAS("corp-alias","string"),
@@ -62,7 +65,7 @@ public class Schema {
     LOC_CODE("loc-code","string"),
     CITY_TYPE("city-type","string"),
     LOC_CITY_CODE("loc-city-code","string"),
-    SHCOOL_TYPE("school-type","string"),
+    SCHOOL_TYPE("school-type","string"),
     SCHOOL_CODE("school-code","string"),
     IND_CODE("ind-code","string"),
     CERT_CODE("cert-code","string"),
@@ -110,7 +113,9 @@ public class Schema {
     MAJOR_DISCIPLINE_REL("majordiscipline-rel"),
     MAJOR_CATEGORY_REL("majordiscipline-rel"),
     COMPANY_DEPARTMENT("company-dept"),
-    COMPANY_CORP_TYPE("company-corp-type")
+    COMPANY_CORP_TYPE("company-corp-type"),
+    SCHOOL_SCHOOL_TYPE("school-school-type"),
+    ENTITY_ENTITY_TYPE("entity-entity-type")
     ;
     private String name;
     RelType(String name) {
@@ -202,7 +207,11 @@ public class Schema {
     HAS_DEPARTMENT("has_dept"),
     DEPARTMENT_IN("dept_in"),
     COMPANY_CORPTYPE("company-corptype"),
-    CORPTYPE_COMPANY("corptype-company")
+    CORPTYPE_COMPANY("corptype-company"),
+    ENTITY_ENTITY_TYPE("entity-entitytype"),
+    ENTITY_TYPE_ENTITY("etype-entity"),
+    SCHOOLTYPE_SCHOOL("schooltype-school"),
+    SCHOOL_SCHOOLTYPE("school-schooltype")
     ;
     private String name;
     Relations(String name) {

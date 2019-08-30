@@ -1,6 +1,7 @@
 package com.higgs.grakn.query;
 
 import com.higgs.grakn.client.HgraknClient;
+import com.higgs.grakn.client.schema.Schema;
 import com.higgs.grakn.hadoop.CompanyEntity4GraknMapred;
 import com.higgs.grakn.util.TimeUtil;
 import com.higgs.grakn.variable.Variable;
@@ -9,10 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import grakn.client.GraknClient;
+import grakn.core.concept.answer.ConceptMap;
 import grakn.core.concept.answer.Numeric;
 import graql.lang.Graql;
+import graql.lang.query.GraqlGet;
+import graql.lang.query.GraqlQuery;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+
+import static graql.lang.Graql.var;
 
 /**
  * User: JerryYou
@@ -30,7 +36,7 @@ public class Kbquery {
   private static Logger logger = LoggerFactory.getLogger(CompanyEntity4GraknMapred.class);
 
 
-  void query() {
+  void queryCount() {
     long st = System.currentTimeMillis();
     String query = "match\n" + "  $1 isa entitytype-entity, has name \"世界五百强\";\n" + "  $2 isa " +
         "entitytype-entity, has name \"沃尔玛\";\n" + "  $4 (company-corptype:$1," +
@@ -49,11 +55,51 @@ public class Kbquery {
       );
     long et = System.currentTimeMillis();
 
-    System.out.println(",cost: "+ TimeUtil.costTime(st,et) +",st:" + st + ",et:" + et);
+    System.out.println("cost: "+ TimeUtil.costTime(st,et) +",st:" + st + ",et:" + et);
     readTransaction.close();
   }
 
-  void compute() {
+  void query() {
+    long st = System.currentTimeMillis();
+    String query = "match $1 isa entitytype-entity, has name \"幼儿园教师资格\", has cert-code $2; get;\n";
+    int page = 1;
+    int pageSize = 100;
+    GraknClient.Transaction readTransaction = session.transaction().read();
+    int offset = (page - 1) * pageSize;
+    String finalQuery = query + " offset " + offset + "; limit " + pageSize + ";";
+    List<ConceptMap> answers = readTransaction.execute((GraqlGet) Graql.parse(query));
+
+    answers.forEach(
+        answer -> logger.info("item:" + answer.get("2").asAttribute().value().toString())
+    );
+    long et = System.currentTimeMillis();
+
+    System.out.println("cost: "+ TimeUtil.costTime(st,et) +",st:" + st + ",et:" + et);
+    readTransaction.close();
+  }
+
+  void match_query_insert() {
+    long st = System.currentTimeMillis();
+    int page = 1;
+    int pageSize = 100;
+    GraknClient.Transaction writeTransaction = session.transaction().write();
+    try {
+      GraqlQuery graqlQuery = Graql.match(
+          var("c").isa(Schema.Entity.ENTITY.getName())
+          .has("name", "沃尔玛2")
+      ).insert(
+          var("c").has("code", 100)
+      );
+      writeTransaction.execute(graqlQuery);
+    } catch (Exception e) {
+      logger.info("[Insert commit error] =>" + e.getMessage());
+    } finally {
+      writeTransaction.close();
+    }
+
+    long et = System.currentTimeMillis();
+
+    System.out.println("cost: "+ TimeUtil.costTime(st,et) +",st:" + st + ",et:" + et);
 
   }
 

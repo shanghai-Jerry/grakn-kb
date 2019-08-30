@@ -148,7 +148,7 @@ public class CompanyDeptDataMigration extends DataMigration  {
           String name = data.getString("normedName");
           GraqlQuery graqlQuery = Graql.insert(
               var(Variable.getVarValue(Schema.Entity.COMPANY.getName(), name))
-                  .isa(Schema.Entity.ENTITY_TYPE.getName())
+                  .isa(Schema.Entity.ENTITY.getName())
                   .has(Schema.Attribute.NAME.getName(), name)
           );
           return graqlQuery;
@@ -181,7 +181,7 @@ public class CompanyDeptDataMigration extends DataMigration  {
           String name = data.getString("deptName");
           GraqlQuery graqlQuery = Graql.insert(
               var(Variable.getVarValue(Schema.Entity.DEPARTMENT.getName(),Variable.getMD5(name))).isa
-                  (Schema.Entity.ENTITY_TYPE.getName())
+                  (Schema.Entity.ENTITY.getName())
                   .has(Schema.Attribute.NAME.getName(), name)
           );
           return graqlQuery;
@@ -218,9 +218,9 @@ public class CompanyDeptDataMigration extends DataMigration  {
           String companyDeptVar = Variable.getRelVarValue(Schema.Entity.DEPARTMENT.getName(),
               companyName, deptName);
           GraqlQuery graqlQuery = Graql.match(
-              var(companyVar).isa(Schema.Entity.ENTITY_TYPE.getName())
+              var(companyVar).isa(Schema.Entity.ENTITY.getName())
                   .has(Schema.Attribute.NAME.getName(),companyName),
-              var(departVar).isa(Schema.Entity.ENTITY_TYPE.getName()).has(Schema.Attribute.NAME.getName
+              var(departVar).isa(Schema.Entity.ENTITY.getName()).has(Schema.Attribute.NAME.getName
                   (), deptName)
           ).insert(
               var(companyDeptVar).rel(Schema.Relations

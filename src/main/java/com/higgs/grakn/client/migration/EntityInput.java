@@ -16,42 +16,34 @@ import static graql.lang.Graql.var;
 /**
  * User: JerryYou
  *
- * Date: 2019-08-29
+ * Date: 2019-08-30
  *
  * Copyright (c) 2018 devops
  *
  * <<licensetext>>
  */
-public class AttributeInput extends Input {
+public class EntityInput extends Input {
 
-  public AttributeInput(String path, String inEntity, String attributeType) {
-    super(path, inEntity, attributeType);
+  public EntityInput(String path, String inEntity) {
+    super(path, inEntity);
   }
-
-  public AttributeInput(String path, String attributeType) {
-    super(path);
-    this.attributeType = attributeType;
-    this.inEntity = Schema.Entity.ENTITY.getName();
-  }
-
   @Override
   public GraqlQuery template(JsonObject data) {
     String name = data.getString("name");
-    String value = data.getString("attribute_value");
-    String var = Variable.getVarValue(this.inEntity, name);
-    return Graql.match(
-        var(var)
-            .isa(this.inEntity)
+    String type = data.getString("type");
+    long code = data.getLong("id");
+    return Graql.insert(
+        var(Variable.getVarValue(type, name))
+            .isa(type)
             .has(Schema.Attribute.NAME.getName(), name)
-    ).insert(
-        var(var).has(this.attributeType, value)
+            .has(Schema.Attribute.CODE.getName(), code)
     );
   }
 
   @Override
   public List<JsonObject> parseDataToJson() {
     List<JsonObject> items = new ArrayList<>();
-    KbParseData.parseAttribute(items, this.getDataPath());
+    KbParseData.parseEntity(items, this.inEntity, this.getDataPath());
     return items;
   }
 }

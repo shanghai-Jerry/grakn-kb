@@ -1,0 +1,441 @@
+define
+
+# 属性值类型定义
+entity-type sub attribute,
+  datatype string;
+
+name sub attribute,
+  datatype string;
+
+code sub attribute,
+  datatype long;
+
+major-code sub attribute,
+  datatype string;
+
+corp-type sub attribute,
+  datatype string;
+
+corp-alias sub attribute,
+  datatype string;
+
+corp-eng-name sub attribute,
+  datatype string;
+
+consensus-type sub attribute,
+  datatype long;
+
+consensus-maxscore sub attribute,
+  datatype long;
+
+consensus-desc sub attribute,
+  datatype string;
+
+consensus-facet sub attribute,
+  datatype long;
+
+consensus-classname sub attribute,
+  datatype string;
+
+loc-code sub attribute,
+  datatype string;
+
+city-type sub attribute,
+  datatype string;
+
+loc-city-code sub attribute,
+  datatype string;
+
+school-type sub attribute,
+  datatype string;
+
+school-code sub attribute,
+  datatype string;
+
+ind-code sub attribute,
+  datatype string;
+
+cert-code sub attribute,
+  datatype string;
+
+
+############
+# 实体关系 ##
+############
+
+keywords-of-subject sub relation,
+  abstract,
+  relates keyword-subject,
+  relates subject-keyword;
+
+conflictword-of-subject sub relation,
+  abstract,
+  relates conflictword-subject,
+  relates subject-conflictword;
+
+
+keywords-of-industry sub keywords-of-subject,
+  relates industry-keyword as keyword-subject,
+  relates keyword-industry as  subject-keyword;
+
+conflictword-of-industry sub conflictword-of-subject,
+  relates industry-conflictword as subject-conflictword,
+  relates conflictword-industry as conflictword-subject;
+
+# 行业
+industry-rel sub relation,
+  relates superior-industry, # 上级行业
+  relates lower-industry, # 下级行业
+  relates keyword-industry,
+  relates industry-keyword,
+  relates industry-conflictword,
+  relates conflictword-industry;
+
+keywords-of-cert sub keywords-of-subject,
+  relates cert-keyword as keyword-subject,
+  relates keyword-cert as  subject-keyword;
+
+# 证书
+cert-rel sub relation,
+  relates keyword-cert,
+  relates superior-cert, # 上级证书大类
+  relates lower-cert, # 下级证书大类
+  relates highergold-cert, # 含金量更高证书
+  relates cert-keyword,
+
+  relates lowergold-cert; # 含金量低证书
+
+# 职能
+job-function-rel sub relation,
+ relates func-industry,
+ relates industry-func,
+ relates conflictfunc-func,
+ relates func-conflictfunc,
+ relates top-func,
+ relates down-func;
+
+keywords-of-jobrank sub keywords-of-subject,
+  relates jobrank-keyword as keyword-subject,
+  relates keyword-jobrank as  subject-keyword;
+
+conflictword-of-jobrank sub conflictword-of-subject,
+  relates jobrank-conflictword as subject-conflictword,
+  relates conflictword-jobrank as conflictword-subject;
+
+# 职级
+job-rank-rel sub relation,
+  relates conflictword-jobrank,
+  relates jobrank-conflictword,
+   relates jobrank-keyword,
+
+  relates keyword-jobrank;
+
+keywords-of-jobtitle sub keywords-of-subject,
+  relates jobtitle-keyword as keyword-subject,
+  relates keyword-jobtitle as  subject-keyword;
+
+# 职位
+job-title-rel sub relation,
+ relates industry-jobtitle,
+ relates keyword-jobtitle,
+ relates jobtitle-keyword,
+
+ relates func-jobtitle;
+
+keywords-of-orangeindustry sub keywords-of-subject,
+  relates orangeindustry-keyword as keyword-subject,
+  relates keyword-orangeindustry as  subject-keyword;
+# 桔子行业
+orange-industry-rel sub relation,
+  relates top-orangeindustry,
+  relates keyword-orangeindustry,
+  relates company-orangeindustry,
+   relates orangeindustry-keyword,
+
+  relates down-orangeindustry;
+
+keywords-of-direction sub keywords-of-subject,
+  relates direction-keyword as keyword-subject,
+  relates keyword-direction as  subject-keyword;
+# 方向
+direction-rel sub relation,
+  relates superior-direction,
+  relates lower-direction,
+  relates keyword-direction,
+  relates direction-keyword,
+
+  relates func-direction;
+
+keywords-of-skill sub keywords-of-subject,
+  relates skill-keyword as keyword-subject,
+  relates keyword-skill as  subject-keyword;
+# 技能
+skill-rel sub relation,
+  relates superior-skill,
+  relates lower-skill,
+  relates keyword-skill,
+   relates skill-keyword,
+
+  relates func-skill;
+
+keywords-of-attribute sub keywords-of-subject,
+  relates attribute-keyword as keyword-subject,
+  relates keyword-attribute as  subject-keyword;
+# 属性值
+attribute-rel sub keywords-of-subject,
+  relates keyword-attribute,
+  relates attribute-keyword;
+
+
+keywords-of-school sub keywords-of-subject,
+  relates school-keyword as keyword-subject,
+  relates keyword-school as  subject-keyword;
+# 学校
+school-rel sub keywords-of-subject,
+relates school-keyword,
+
+ relates keyword-school;
+
+keywords-of-location sub keywords-of-subject,
+  relates location-keyword as keyword-subject,
+  relates keyword-location as  subject-keyword;
+# 城市
+location-rel sub keywords-of-subject,
+  relates location-keyword,
+
+  relates keyword-location;
+
+# 同义词
+synonym sub relation,
+  relates is-synonym;
+
+keywords-of-company sub keywords-of-subject,
+  relates company-keyword as keyword-subject,
+  relates keyword-company as  subject-keyword;
+# 公司
+company-rel sub relation,
+  relates orangeindustry-company,
+  relates keyword-company,
+   relates company-keyword,
+
+  relates companygroup-company;
+
+company-type-rel sub relation,
+  relates highergold-companytype,
+  relates lowergold-companytype;
+
+company-group-rel sub relation,
+  relates company-companygroup;
+
+keywords-of-topic sub keywords-of-subject,
+  relates topic-keyword as keyword-subject,
+  relates keyword-topic as  subject-keyword;
+# 主题
+topic-rel sub keywords-of-subject,
+ relates topic-keyword,
+
+  relates keyword-topic;
+
+keywords-of-major sub keywords-of-subject,
+  relates major-keyword as keyword-subject,
+  relates keyword-major as  subject-keyword;
+# 专业
+major-rel sub relation,
+  relates major-keyword,
+  relates majorrelates-major,
+  relates is-similarity,
+  relates keyword-major,
+  relates majordiscipline-major,
+  relates majorcategory-major;
+
+majorrelates-rel sub relation,
+  relates major-majorrelates;
+
+majordiscipline-rel sub relation,
+  relates major-majordiscipline;
+
+majorcategory sub relation,
+  relates major-majorcategory;
+
+# 公司与候选人之前的关系定义
+employment sub relation,
+		has salary,
+    has offered-date,
+		relates employer,
+		relates employee,
+		relates offered-position;
+
+offered-date sub attribute,
+		datatype date;
+
+salary sub attribute,
+		datatype long;
+
+canidate sub entity,
+   has name,
+   plays employee,
+   plays offered-position;
+
+company sub entity,
+  has name,
+  plays employer,
+  plays dept_in;
+
+# 公司与部门之前的关系
+company-dept sub relation,
+  has establish_date,
+  # 公司有那个部门
+  relates has_dept,
+  # 部门在哪个公司
+  relates dept_in;
+dept sub entity,
+  has name,
+  plays has_dept;
+
+establish_date sub attribute,
+  datatype date;
+
+
+# 公司类型到实体之间的关系
+company-corp-type sub relation,
+  relates company-corptype,
+  relates corptype-company;
+
+# 学校类型实体到实体之间的关系
+school-school-type sub relation,
+   relates school-schooltype,
+   relates schooltype-school;
+
+# 实体类型到类型之间的关系
+entity-entity-type sub relation,
+    relates entity-entitytype,
+    relates etype-entity;
+
+
+#########
+# 实体 ##
+########
+
+entity-type-entity sub entity,
+    has code,
+    has name,
+    plays entity-entitytype;
+
+school-type-entity sub entity,
+    has code,
+    has name,
+    plays school-schooltype;
+
+entitytype-entity sub entity,
+  has entity-type,
+  has name,
+  plays is-synonym,
+# 关键词
+   plays industry-keyword,
+   plays industry-conflictword,
+   plays cert-keyword,
+   plays jobrank-conflictword,
+   plays jobrank-keyword,
+   plays jobtitle-keyword,
+   plays orangeindustry-keyword,
+   plays direction-keyword,
+   plays skill-keyword,
+   plays attribute-keyword,
+   plays school-keyword,
+   plays location-keyword,
+   plays company-keyword,
+   plays topic-keyword,
+   plays major-keyword,
+
+   plays keyword-industry,
+   plays conflictword-industry,
+   plays keyword-cert,
+   plays conflictword-jobrank,
+   plays keyword-jobrank,
+   plays keyword-jobtitle,
+   plays keyword-orangeindustry,
+   plays keyword-direction,
+   plays keyword-skill,
+   plays keyword-attribute,
+   plays keyword-school,
+   plays keyword-location,
+   plays keyword-company,
+   plays keyword-topic,
+   plays keyword-major,
+
+# 职能
+  plays conflictfunc-func,
+  plays industry-func,
+  plays top-func,
+  plays down-func,
+# 方向
+  plays superior-direction,
+  plays lower-direction,
+  plays func-direction,
+# 行业
+  has ind-code,
+  plays superior-industry,
+  plays lower-industry,
+# 技能
+  plays superior-skill,
+  plays lower-skill,
+  plays func-skill,
+# 主题
+# 证书
+  has cert-code,
+  plays superior-cert,
+  plays lower-cert,
+  plays highergold-cert, # 含金量更高证书
+  plays lowergold-cert, # 含金量低证书
+# 专业
+ has major-code,
+ plays majorrelates-major,
+ plays majordiscipline-major,
+ plays majorcategory-major,
+ plays is-similarity,
+# 学校
+  has school-type,
+  has school-code,
+# 公司
+  has corp-type,
+  has corp-alias,
+  has corp-eng-name,
+  plays orangeindustry-company,
+  plays companygroup-company,
+# 专业大类
+# 专业学科
+# 地点
+  has loc-code,
+  has city-type,
+  has loc-city-code,
+# 已知未识别
+
+# 共识
+  has consensus-type,
+  has consensus-maxscore,
+  has consensus-desc,
+  has consensus-facet,
+  has consensus-classname,
+# 职位
+  plays industry-jobtitle,
+  plays func-jobtitle,
+
+# 部门
+# 职级
+  plays conflictword-jobrank,
+  plays keyword-jobrank,
+# 属性值类型
+  plays highergold-companytype,
+  plays lowergold-companytype,
+# IT桔子行业
+  plays top-orangeindustry,
+  plays down-orangeindustry,
+  # 公司有那个部门
+  plays has_dept,
+  # 部门在哪个公司
+  plays dept_in,
+  plays company-corptype,
+  plays corptype-company,
+  plays schooltype-school,
+  plays etype-entity
+  ;

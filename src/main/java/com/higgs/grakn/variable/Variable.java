@@ -2,16 +2,10 @@ package com.higgs.grakn.variable;
 
 import com.higgs.grakn.client.schema.Schema;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,10 +30,6 @@ public class Variable {
 
   public  static String KEY_SPACE = "kb1";
 
-  public static  String stringFormatSql(String var) {
-    return "\"" + var + "\"";
-  }
-
   public static List<String> entityTypeList = Arrays.asList(
       Schema.Entity.KEYWORD.getName(),
       Schema.Entity.JOB_FUNCTION.getName(),
@@ -55,9 +45,9 @@ public class Variable {
       Schema.Entity.MAJOR_DISCIPLINE.getName(),
       Schema.Entity.LOCATION.getName(),
       Schema.Entity.KNOW_NOT_RECOGNIZE.getName(),
+      Schema.Entity.NONE.getName(),
       Schema.Entity.CONSENSUS.getName(),
       Schema.Entity.JOB_TITLE.getName(),
-      Schema.Entity.DEPARTMENT.getName(),
       Schema.Entity.JOB_RANK.getName(),
       Schema.Entity.ATTRIBUTE.getName(),
       Schema.Entity.IT_ORANGE_INDUSTRY.getName()
@@ -109,37 +99,5 @@ public class Variable {
     String md5 = new BigInteger(1, md.digest()).toString(16);
     return md5;
   }
-
-
-  /**
-   * 深拷贝， 引用对象独立，互不影响
-   * @param src 源数组
-   * @param <T> 支持实体泛型，继承自EntityNode
-   * @return 目标数组
-   */
-  public static <T> List<T> deepCopy(List<T> src) {
-
-    ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-    ObjectOutputStream out = null;
-    try {
-      out = new ObjectOutputStream(byteOut);
-      out.writeObject(src);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray());
-    ObjectInputStream in = null;
-    List<T> dest = new ArrayList<>();
-    try {
-      in = new ObjectInputStream(byteIn);
-      dest = (List<T>) in.readObject();
-    } catch (IOException e) {
-      e.printStackTrace();
-    } catch (ClassNotFoundException e) {
-      e.printStackTrace();
-    }
-    return dest;
-  }
-
 
 }

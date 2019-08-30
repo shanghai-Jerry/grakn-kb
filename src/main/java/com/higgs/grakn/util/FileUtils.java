@@ -227,6 +227,45 @@ public class FileUtils {
       }
     }
   }
+
+  public static void saveFileToCsv(String filePath, Map<String, List<String>> map) {
+    PrintWriter printWriter = null;
+    try {
+      printWriter = new PrintWriter(new FileOutputStream(new File(filePath), false));
+      Set<Map.Entry<String, List<String>>> entrySet = map.entrySet();
+      Iterator<Map.Entry<String, List<String>>> iterator = entrySet.iterator();
+      int count = 0;
+      while (iterator.hasNext()) {
+        Map.Entry<String, List<String>> entry = iterator.next();
+        String key = entry.getKey();
+        List<String> values= entry.getValue();
+        StringBuffer sb = new StringBuffer();
+        int i = 0;
+        for (String value : values) {
+          if (i == 0) {
+            sb.append(value);
+          } else {
+            sb.append("," + value );
+          }
+          i++;
+        }
+        printWriter.write("\""+key+"\",\""+sb.toString()+ "\",\"" + "1\"");
+        printWriter.write("\n");
+        count++;
+        if (count >= 200) {
+          printWriter.flush();
+          count = 0;
+        }
+      }
+      printWriter.flush();
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } finally {
+      if (printWriter != null) {
+        printWriter.close();
+      }
+    }
+  }
   public static void saveFiles(String filePath, Map<String, String> map) {
     PrintWriter printWriter = null;
     try {

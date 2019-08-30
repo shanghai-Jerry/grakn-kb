@@ -72,7 +72,7 @@ public class DataMigration {
 
   public void defaultConnectAndMigrate(Collection<Input> inputs) {
     for (Input input : inputs) {
-      logger.info("Loading from [" + input.getDataPath() + "] into Grakn, started_at " +
+      logger.info("Insert Loading from [" + input.getDataPath() + "] into Grakn, started_at " +
           new Date().toString());
       loadDataIntoGrakn(input, 10000);
     }
@@ -83,7 +83,7 @@ public class DataMigration {
   public void connectAndMigrate(Collection<Input> inputs) {
     for (Input input : inputs) {
       long startTime = System.currentTimeMillis();
-      logger.info("Loading from [" + input.getDataPath() + "] into Grakn, started_at " +
+      logger.info("Insert Loading from [" + input.getDataPath() + "] into Grakn, started_at " +
           new Date().toString());
       long total = loadDataIntoGrakn(input, this.batchSize);
       long endTime = System.currentTimeMillis();
@@ -106,7 +106,7 @@ public class DataMigration {
         GraqlQuery graqlInsertQuery = input.template(item);
         transaction.execute(graqlInsertQuery);
         if (count % batchSize == 0) {
-          logger.info(Thread.currentThread().getName()+" - Executing Graql Insert: " +
+          logger.info(Thread.currentThread().getName()+" - Insert Executing Graql: " +
               finished + "/" + data.size());
           transaction.commit();
           transaction = session.transaction().write();
@@ -119,7 +119,7 @@ public class DataMigration {
       }
     } catch (Exception e) {
 
-      logger.info("[commit error] => " + e.getMessage());
+      logger.info("[Insert commit error] => " + e.getMessage());
     } finally {
       session.close();
     }

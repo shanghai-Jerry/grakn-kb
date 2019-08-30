@@ -17,6 +17,39 @@ import io.vertx.core.json.JsonObject;
 public abstract class Input {
   String path;
 
+  String inEntity;
+
+  String outEntity;
+
+  String inRel;
+
+  String outRel;
+
+  String relType;
+
+  String attributeType;
+
+  // Relation
+  public Input(String path, String inEntity, String outEntity, String inRel, String outRel, String relType) {
+    this.path = path;
+    this.inEntity = inEntity;
+    this.outEntity = outEntity;
+    this.inRel = inRel;
+    this.outRel = outRel;
+    this.relType = relType;
+  }
+  // Attribute
+  public Input(String path, String inEntity, String attributeType) {
+    this.path = path;
+    this.inEntity = inEntity;
+    this.attributeType = attributeType;
+  }
+  // entity
+  public Input(String path, String inEntity) {
+    this.path = path;
+    this.inEntity = inEntity;
+  }
+
   public Input(String path) {
     this.path = path;
   }

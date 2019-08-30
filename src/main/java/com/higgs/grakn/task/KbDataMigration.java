@@ -61,8 +61,8 @@ public class KbDataMigration extends DataMigration {
       public GraqlQuery template(JsonObject data) {
         String name = data.getString("name");
         return Graql.insert(
-          var(Variable.getVarValue(Schema.Entity.ENTITY_TYPE.getName(), name))
-              .isa(Schema.Entity.ENTITY_TYPE.getName())
+          var(Variable.getVarValue(Schema.Entity.ENTITY.getName(), name))
+              .isa(Schema.Entity.ENTITY.getName())
               .has(Schema.Attribute.NAME.getName(), name)
         );
       }
@@ -90,6 +90,7 @@ public class KbDataMigration extends DataMigration {
         return items;
       }
     });
+
     List<Input> attributeInputs = Arrays.asList(
         new AttributeInput(dir + "corp_type.csv", Schema.Attribute.CORP_TYPE.getName()),
         new AttributeInput(dir + "cert_code.csv", Schema.Attribute.CERT_CODE.getName()),
@@ -100,7 +101,9 @@ public class KbDataMigration extends DataMigration {
         new AttributeInput(dir + "loc_city_code.csv", Schema.Attribute.LOC_CITY_CODE.getName()),
         new AttributeInput(dir + "loc_code.csv", Schema.Attribute.LOC_CODE.getName()),
         new AttributeInput(dir + "major_code.csv", Schema.Attribute.MAJOR_CODE.getName()),
-        new AttributeInput(dir + "school_code.csv", Schema.Attribute.SCHOOL_CODE.getName())
+        new AttributeInput(dir + "school_code.csv", Schema.Attribute.SCHOOL_CODE.getName()),
+        new AttributeInput(dir + "school_type.csv", Schema.Attribute.SCHOOL_TYPE.getName()),
+        new AttributeInput(dir + "entity-type-format.csv", Schema.Attribute.ENTITY_TYPE.getName())
     );
     inputs.addAll(attributeInputs);
 
@@ -112,14 +115,14 @@ public class KbDataMigration extends DataMigration {
         String out_value = data.getString("out_value");
         String in = data.getString("in");
         String out = data.getString("out");
-        String inVar = Variable.getVarValue(Schema.Entity.ENTITY_TYPE.getName(), in_value);
-        String outVar = Variable.getVarValue(Schema.Entity.ENTITY_TYPE.getName(), out_value);
+        String inVar = Variable.getVarValue(Schema.Entity.ENTITY.getName(), in_value);
+        String outVar = Variable.getVarValue(Schema.Entity.ENTITY.getName(), out_value);
         String relVar = Variable.getRelVarValue(Schema.RelType.COMPANY_CORP_TYPE.getName(), in_value,
             out_value);
         return  Graql.match(
-            var(inVar).isa(Schema.Entity.ENTITY_TYPE.getName())
+            var(inVar).isa(Schema.Entity.ENTITY.getName())
             .has(Schema.Attribute.NAME.getName(), in_value),
-            var(outVar).isa(Schema.Entity.ENTITY_TYPE.getName())
+            var(outVar).isa(Schema.Entity.ENTITY.getName())
                 .has(Schema.Attribute.NAME.getName(), out_value)
         ).insert(
           var(relVar).isa(Schema.RelType.COMPANY_CORP_TYPE.getName())
@@ -131,12 +134,84 @@ public class KbDataMigration extends DataMigration {
       @Override
       public List<JsonObject> parseDataToJson() {
         List<JsonObject> items = new ArrayList<>();
-        KbParseData.parseCorpTypeRelationsInAttribute(items, this.getDataPath());
+        KbParseData.parseRelationsInAttribute(items, Schema.Relations.CORPTYPE_COMPANY.getName(),
+            Schema.Relations.COMPANY_CORPTYPE.getName(),this.getDataPath());
         return items;
       }
     });
+
+    // 学校 - 学校类型之间的关系
+    inputs.add(new Input(dir + "school_type.csv") {
+      @Override
+      public GraqlQuery template(JsonObject data) {
+        String in_value = data.getString("in_value");
+        String out_value = data.getString("out_value");
+        String in = data.getString("in");
+        String out = data.getString("out");
+        String inVar = Variable.getVarValue(Schema.Entity.ENTITY.getName(), in_value);
+        String outVar = Variable.getVarValue(Schema.Entity.SCHOOL_TYPE_ENTITY.getName(), out_value);
+        String relVar = Variable.getRelVarValue(Schema.RelType.SCHOOL_SCHOOL_TYPE.getName(), in_value,
+            out_value);
+        return  Graql.match(
+            var(inVar).isa(Schema.Entity.ENTITY.getName())
+                .has(Schema.Attribute.NAME.getName(), in_value),
+            var(outVar).isa(Schema.Entity.SCHOOL_TYPE_ENTITY.getName())
+                .has(Schema.Attribute.NAME.getName(), out_value)
+        ).insert(
+            var(relVar).isa(Schema.RelType.SCHOOL_SCHOOL_TYPE.getName())
+                .rel(in, var(inVar))
+                .rel(out, var(outVar))
+        );
+      }
+
+      @Override
+      public List<JsonObject> parseDataToJson() {
+        List<JsonObject> items = new ArrayList<>();
+        KbParseData.parseRelationsInAttribute(items, Schema.Relations.SCHOOLTYPE_SCHOOL.getName(),
+            Schema.Relations.SCHOOL_SCHOOLTYPE.getName(),this.getDataPath());
+        return items;
+      }
+    });
+
+    // 实体 - 实体类型型之间的关系
+    inputs.add(new Input(dir + "entity-type-format.csv") {
+      @Override
+      public GraqlQuery template(JsonObject data) {
+        String in_value = data.getString("in_value");
+        String out_value = data.getString("out_value");
+        String in = data.getString("in");
+        String out = data.getString("out");
+        String inVar = Variable.getVarValue(Schema.Entity.ENTITY.getName(), in_value);
+        String outVar = Variable.getVarValue(Schema.Entity.ENTITY_TYPE_ENTITY.getName(), out_value);
+        String relVar = Variable.getRelVarValue(Schema.RelType.ENTITY_ENTITY_TYPE.getName(), in_value,
+            out_value);
+        return  Graql.match(
+            var(inVar).isa(Schema.Entity.ENTITY.getName())
+                .has(Schema.Attribute.NAME.getName(), in_value),
+            var(outVar).isa(Schema.Entity.ENTITY_TYPE_ENTITY.getName())
+                .has(Schema.Attribute.NAME.getName(), out_value)
+        ).insert(
+            var(relVar).isa(Schema.RelType.ENTITY_ENTITY_TYPE.getName())
+                .rel(in, var(inVar))
+                .rel(out, var(outVar))
+        );
+      }
+
+      @Override
+      public List<JsonObject> parseDataToJson() {
+        List<JsonObject> items = new ArrayList<>();
+        KbParseData.parseRelationsInAttribute(items, Schema.Relations.ENTITY_TYPE_ENTITY.getName(),
+            Schema.Relations.ENTITY_ENTITY_TYPE.getName(),this.getDataPath());
+        return items;
+      }
+    });
+
+    List<RelationInput> relationInputs = Arrays.asList(
+
+    );
     // 关系input
-    inputs.add(new RelationInput(dir + "xxxx.csv"));
+    // TODO
+    inputs.addAll(relationInputs);
 
     kbDataMigration.connectAndMigrate(inputs);
 

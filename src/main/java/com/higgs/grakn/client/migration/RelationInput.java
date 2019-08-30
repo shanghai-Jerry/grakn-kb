@@ -24,6 +24,11 @@ import static graql.lang.Graql.var;
  */
 public class RelationInput extends Input {
 
+  public RelationInput(String path, String inEntity, String outEntity, String inRel, String
+      outRel, String relType) {
+    super(path, inEntity, outEntity, inRel, outRel, relType);
+  }
+
   public RelationInput(String path) {
     super(path);
   }
@@ -35,17 +40,18 @@ public class RelationInput extends Input {
     String in = data.getString("in");
     String out = data.getString("out");
     String relType = data.getString("rel_type");
-    String inVar = Variable.getVarValue(Schema.Entity.ENTITY_TYPE.getName(), in_value);
-    String outVar = Variable.getVarValue(Schema.Entity.ENTITY_TYPE.getName(), out_value);
-    String relVar = Variable.getRelVarValue(relType, in_value,
+    String inVar = Variable.getVarValue(this.inEntity, in_value);
+    String outVar = Variable.getVarValue(this.outEntity, out_value);
+    String relVar = Variable.getRelVarValue(this.relType, in_value,
         out_value);
     return  Graql.match(
-        var(inVar).isa(Schema.Entity.ENTITY_TYPE.getName())
+        var(inVar).isa(this.inEntity)
             .has(Schema.Attribute.NAME.getName(), in_value),
-        var(outVar).isa(Schema.Entity.ENTITY_TYPE.getName())
+        var(outVar).isa(this.outEntity)
             .has(Schema.Attribute.NAME.getName(), out_value)
     ).insert(
-        var(relVar).isa(Schema.RelType.COMPANY_CORP_TYPE.getName())
+        var(relVar)
+            .isa(relType)
             .rel(in, var(inVar))
             .rel(out, var(outVar))
     );
@@ -54,7 +60,7 @@ public class RelationInput extends Input {
   @Override
   public List<JsonObject> parseDataToJson() {
     List<JsonObject> items = new ArrayList<>();
-    KbParseData.parseRelations(items, "", "", "", this.getDataPath());
+    KbParseData.parseRelations(items, this.getDataPath());
     return items;
   }
 }
