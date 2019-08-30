@@ -228,7 +228,7 @@ public class CompanyEntity4GraknMapred extends Configured implements Tool {
               JsonObject infoObject = new JsonObject(key);
               String companyName = infoObject.getString("normedName");
               String deptName = infoObject.getString("deptName");
-              querys.addAll(getDeptRel(Schema.RelType.COMPANY_DEPARTMENT.getName(), companyName, deptName));
+              querys.addAll(getDeptRel(Schema.RelType.ENTITY_REL.getName(), companyName, deptName));
             }
           }
         }

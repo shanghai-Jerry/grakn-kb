@@ -1,28 +1,18 @@
 package com.higgs.grakn.task;
 
-import com.csvreader.CsvReader;
 import com.higgs.grakn.client.HgraknClient;
-import com.higgs.grakn.client.migration.AttributeInput;
 import com.higgs.grakn.client.migration.DataMigration;
 import com.higgs.grakn.client.migration.Input;
 import com.higgs.grakn.client.migration.RelationInput;
 import com.higgs.grakn.client.schema.Schema;
 import com.higgs.grakn.variable.Variable;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import graql.lang.Graql;
-import graql.lang.query.GraqlQuery;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-
-import static graql.lang.Graql.var;
 
 /**
  * User: JerryYou
@@ -55,6 +45,7 @@ public class KbDataMigration extends DataMigration {
     kbDataMigration.setHgraknClient(hgraknClient);
     kbDataMigration.setBatchSize(10000);
     Collection<Input> inputs = new ArrayList<>();
+    /*
     // kb_entity.csv
     inputs.add(new Input(dir + "kb_entity.csv") {
       @Override
@@ -205,15 +196,22 @@ public class KbDataMigration extends DataMigration {
         return items;
       }
     });
+    */
+    List<RelationInput> relationInputs = new ArrayList<>();
 
-    List<RelationInput> relationInputs = Arrays.asList(
+    for (int i = 0; i <= 42; i++) {
+      relationInputs.add(new RelationInput(dir + "relation_" + String.valueOf(i) + ".csv",
+          Schema.Entity.ENTITY.getName(), Schema.Entity.ENTITY.getName(),
+          Variable.relationPairs.get(i).getInRel(),
+          Variable.relationPairs.get(i).getOutRel(),
+          Schema.RelType.ENTITY_REL.getName()));
+    }
 
-    );
-    // 关系input
-    // TODO
     inputs.addAll(relationInputs);
 
     kbDataMigration.connectAndMigrate(inputs);
+
+    logger.info("main Insert finished!!");
 
   }
 

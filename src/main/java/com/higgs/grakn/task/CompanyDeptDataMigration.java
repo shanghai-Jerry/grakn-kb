@@ -225,7 +225,7 @@ public class CompanyDeptDataMigration extends DataMigration  {
           ).insert(
               var(companyDeptVar).rel(Schema.Relations
                   .HAS_DEPARTMENT.getName(), var(departVar)).rel(Schema.Relations.DEPARTMENT_IN
-                  .getName(), var(companyVar)).isa(Schema.RelType.COMPANY_DEPARTMENT.toString())
+                  .getName(), var(companyVar)).isa(Schema.RelType.ENTITY_REL.toString())
           );
           return graqlQuery;
         }

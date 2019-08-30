@@ -25,7 +25,7 @@ public class App {
                 "c++").has(Schema.Attribute.ENTITY_TYPE.getName(),var("x")),
             var("x").isa(Schema.Attribute.ENTITY_TYPE.getName()).val("技能,方向"),
             var("e1").isa(Schema.Entity.ENTITY.getName()).has(Schema.Attribute.NAME.getName(), "服务端语言"),
-            var("rel").isa(Schema.RelType.SKILL_REL.getName()).rel(Schema.Relations
+            var("rel").isa(Schema.RelType.ENTITY_REL.getName()).rel(Schema.Relations
                 .SKILL_KEYWORD.getName(), "e1").rel(Schema.Relations.KEYWORD_SKILL.getName(), "e")
         );
         writeTransaction.execute(query);

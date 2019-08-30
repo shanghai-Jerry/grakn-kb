@@ -37,9 +37,7 @@ public class RelationInput extends Input {
   public GraqlQuery template(JsonObject data) {
     String in_value = data.getString("in_value");
     String out_value = data.getString("out_value");
-    String in = data.getString("in");
-    String out = data.getString("out");
-    String relType = data.getString("rel_type");
+    double weight = data.getDouble("weight");
     String inVar = Variable.getVarValue(this.inEntity, in_value);
     String outVar = Variable.getVarValue(this.outEntity, out_value);
     String relVar = Variable.getRelVarValue(this.relType, in_value,
@@ -52,8 +50,9 @@ public class RelationInput extends Input {
     ).insert(
         var(relVar)
             .isa(relType)
-            .rel(in, var(inVar))
-            .rel(out, var(outVar))
+            .rel(this.inRel, var(inVar))
+            .rel(this.outRel, var(outVar))
+            .has(Schema.Attribute.WEIGHT.getName(), weight)
     );
   }
 

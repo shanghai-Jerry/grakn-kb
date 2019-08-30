@@ -228,28 +228,13 @@ public class FileUtils {
     }
   }
 
-  public static void saveFileToCsv(String filePath, Map<String, List<String>> map) {
+  public static void saveFileToCsv(String filePath, List<String> values, boolean append) {
     PrintWriter printWriter = null;
     try {
-      printWriter = new PrintWriter(new FileOutputStream(new File(filePath), false));
-      Set<Map.Entry<String, List<String>>> entrySet = map.entrySet();
-      Iterator<Map.Entry<String, List<String>>> iterator = entrySet.iterator();
+      printWriter = new PrintWriter(new FileOutputStream(new File(filePath), append));
       int count = 0;
-      while (iterator.hasNext()) {
-        Map.Entry<String, List<String>> entry = iterator.next();
-        String key = entry.getKey();
-        List<String> values= entry.getValue();
-        StringBuffer sb = new StringBuffer();
-        int i = 0;
-        for (String value : values) {
-          if (i == 0) {
-            sb.append(value);
-          } else {
-            sb.append("," + value );
-          }
-          i++;
-        }
-        printWriter.write("\""+key+"\",\""+sb.toString()+ "\",\"" + "1\"");
+      for (String value : values) {
+        printWriter.write(value);
         printWriter.write("\n");
         count++;
         if (count >= 200) {

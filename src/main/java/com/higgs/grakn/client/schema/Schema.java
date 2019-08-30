@@ -69,7 +69,8 @@ public class Schema {
     SCHOOL_CODE("school-code","string"),
     IND_CODE("ind-code","string"),
     CERT_CODE("cert-code","string"),
-    ESTABLISH_DATE("establish_date", "string")
+    ESTABLISH_DATE("establish_date", "string"),
+    WEIGHT("weight", "double")
     ;
 
     private String name;
@@ -91,28 +92,7 @@ public class Schema {
 
   // 关系类型
   public enum RelType {
-
-    INDUSTRY_REL("industry-rel"),
-    CERT_REL("cert-rel"),
-    JOB_FUNCTION_REL("job-function-rel"),
-    JOB_RANK_REL("job-rank-rel"),
-    JOB_TITLE_REL("job-title-rel"),
-    ORANGE_INDUSTRY_REL("orange-industry-rel"),
-    DIRECTION_REL("direction-rel"),
-    SKILL_REL("skill-rel"),
-    ATTRIBUTE_REL("attribute-rel"),
-    SCHOOL_REL("school-rel"),
-    LOCATION_REL("location-rel"),
-    SYNONYM("synonym"),
-    COMPANY_REL("company-rel"),
-    COMPANY_TYPE_REL("company-type-rel"),
-    COMPANY_GROUP_REL("company-group-rel"),
-    TOPIC_REL("topic-rel"),
-    MAJOR_REL("major-rel"),
-    MAJOR_RELATES_REL("majorrelates-rel"),
-    MAJOR_DISCIPLINE_REL("majordiscipline-rel"),
-    MAJOR_CATEGORY_REL("majordiscipline-rel"),
-    COMPANY_DEPARTMENT("company-dept"),
+    ENTITY_REL("entity-rel"),
     COMPANY_CORP_TYPE("company-corp-type"),
     SCHOOL_SCHOOL_TYPE("school-school-type"),
     ENTITY_ENTITY_TYPE("entity-entity-type")
@@ -136,7 +116,7 @@ public class Schema {
 
   // 关系
   public enum Relations {
-
+    NONE("NONE"),
     SUPERIOR_INDUSTRY("superior-industry"),
     LOWER_INDUSTRY("lower-industry"),
     KEYWORD_INDUSTRY("keyword-industry"),
@@ -155,8 +135,10 @@ public class Schema {
     CONFLICTWORD_JOB_RANK("conflictword-jobrank"),
     KEYWORD_JOB_RANK("keyword-jobrank"),
     INDUSTRY_JOB_TITLE("industry-jobtitle"),
-    KWYWORD_JOB_TITLE("keyword-jobtitle"),
+    JOB_TITLE_INDUSTRY("jobtitle-industry"),
+    KEYWORD_JOB_TITLE("keyword-jobtitle"),
     FUNC_JOB_TITLE("func-jobtitle"),
+    JOB_TITLE_FUNC("jobtitle-func"),
     TOP_ORANGE_INDUSTRY("top-orangeindustry"),
     DOWN_ORANGE_INDUSTRY("down-orangeindustry"),
     KEYWORD_ORANGE_INDUSTRY("keyword-orangeindustry"),
@@ -165,10 +147,12 @@ public class Schema {
     LOWER_DIRECTION("lower-direction"),
     KEYWORD_DIRECTION("keyword-direction"),
     FUNC_DIRECTION("func-direction"),
+    DIRECTION_FUNC("direction-func"),
     SUPERIOR_SKILL("superior-skill"),
     LOWER_SKILL("lower-skill"),
     KEYWORD_SKILL("keyword-skill"),
     FUNC_SKILL("func-skill"),
+    SKILL_FUNC("skill-func"),
     KEYWORD_ATTRIBUTE("keyword-attribute"),
     KEYWORD_SCHOOL("keyword-school"),
     KEYWORD_LOCATION("keyword-location"),
@@ -185,7 +169,7 @@ public class Schema {
     KEYWORD_MAJOR("keyword-major"),
     MAJOR_DISCIPLINE_MAJOR("majordiscipline-major"),
     MAJOR_CATEGORY_MAJOR("majorcategory-major"),
-    MAJOR_MAJOR_RELATES_MAJOR("major-majorrelates"),
+    MAJOR_MAJOR_RELATES("major-majorrelates"),
     MAJOR_MAJOR_DISCIPLINE("major-majordiscipline"),
     MAJOR_MAJOR_CATEGORY("major-majorcategory"),
     // keyword 相关关系
@@ -201,7 +185,7 @@ public class Schema {
     ATTRIUTE_KEYWORD("attribute-keyword"),
     SCHOOL_KEYWORD("school-keyword"),
     LOCATION_KEYWORD("location-keyword"),
-    COMAPANY_KEYWORD("company-keyword"),
+    COMPANY_KEYWORD("company-keyword"),
     TOPIC_KEYWORD("topic-keyword"),
     MAJOR_KEYWORD("major-keyword"),
     HAS_DEPARTMENT("has_dept"),
