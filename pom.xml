@@ -152,7 +152,7 @@
           </descriptorRefs>
           <archive>
             <manifest>
-              <mainClass>com.higgs.grakn.task.KbDataMigration</mainClass>
+              <mainClass>com.higgs.grakn.query.Kbquery</mainClass>
             </manifest>
           </archive>
         </configuration>

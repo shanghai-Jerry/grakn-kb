@@ -86,6 +86,9 @@ conflictword-of-industry sub conflictword-of-subject,
   relates conflictword-industry as conflictword-subject;
 
 entity-rel sub relation,
+      # 公司类型
+      relates highergold-companytype,
+      relates lowergold-companytype,
       # 行业
       relates superior-industry, # 上级行业
       relates lower-industry, # 下级行业
@@ -122,6 +125,7 @@ entity-rel sub relation,
             relates industry-jobtitle,
             relates keyword-jobtitle,
             relates jobtitle-keyword,
+            relates jobtitle-industry,
             relates func-jobtitle,
             # 桔子行业
 
@@ -163,6 +167,7 @@ entity-rel sub relation,
                          relates keyword-company,
                          relates company-keyword,
                          relates companygroup-company,
+                         relates company-companygroup,
                          # 主题
                             relates topic-keyword,
                           # 专业
@@ -358,13 +363,16 @@ entitytype-entity sub entity,
 
 # 职能
   plays conflictfunc-func,
+  plays func-conflictfunc,
   plays industry-func,
+  plays func-industry,
   plays top-func,
   plays down-func,
 # 方向
   plays superior-direction,
   plays lower-direction,
   plays func-direction,
+  plays direction-func,
 # 行业
   has ind-code,
   plays superior-industry,
@@ -373,6 +381,7 @@ entitytype-entity sub entity,
   plays superior-skill,
   plays lower-skill,
   plays func-skill,
+  plays skill-func,
 # 主题
 # 证书
   has cert-code,
@@ -383,8 +392,11 @@ entitytype-entity sub entity,
 # 专业
  has major-code,
  plays majorrelates-major,
+ plays major-majorrelates,
  plays majordiscipline-major,
+ plays major-majordiscipline,
  plays majorcategory-major,
+ plays major-majorcategory,
  plays is-similarity,
 # 学校
   has school-type,
@@ -394,7 +406,9 @@ entitytype-entity sub entity,
   has corp-alias,
   has corp-eng-name,
   plays orangeindustry-company,
+  plays company-orangeindustry,
   plays companygroup-company,
+   plays company-companygroup,
 # 专业大类
 # 专业学科
 # 地点
@@ -411,7 +425,9 @@ entitytype-entity sub entity,
   has consensus-classname,
 # 职位
   plays industry-jobtitle,
+  plays jobtitle-industry,
   plays func-jobtitle,
+  plays jobtitle-func,
 
 # 部门
 # 职级

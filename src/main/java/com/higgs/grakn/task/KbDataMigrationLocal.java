@@ -4,6 +4,7 @@ import com.higgs.grakn.client.HgraknClient;
 import com.higgs.grakn.client.migration.DataMigration;
 import com.higgs.grakn.client.migration.EntityInput;
 import com.higgs.grakn.client.migration.Input;
+import com.higgs.grakn.client.migration.RelationInput;
 import com.higgs.grakn.client.schema.Schema;
 import com.higgs.grakn.variable.Variable;
 
@@ -27,6 +28,26 @@ import io.vertx.core.logging.LoggerFactory;
 public class KbDataMigrationLocal extends DataMigration {
   static Logger logger = LoggerFactory.getLogger(KbDataMigrationLocal.class);
 
+  public void migrateAddEntity(String dir,List<Input> inputs) {
+    inputs.add(
+        new EntityInput(dir + "kb_entity_entity_type.csv", Schema.Entity.ENTITY_TYPE_ENTITY
+            .getName()));
+    inputs.add(new EntityInput(dir + "kb_entity_school_type.csv", Schema.Entity
+       .SCHOOL_TYPE_ENTITY.getName()));
+  }
+
+  public void migrateRelationInputs(String dir,List<Input> inputs) {
+    List<Integer> miss = Arrays.asList(22);
+    for (int j = 0; j< miss.size(); j++) {
+      int i = miss.get(j);
+      inputs.add(new RelationInput(dir + "relation_" + String.valueOf(i) + ".csv",
+          Schema.Entity.ENTITY.getName(), Schema.Entity.ENTITY.getName(),
+          Variable.relationPairs.get(i).getInRel(),
+          Variable.relationPairs.get(i).getOutRel(),
+          Schema.RelType.ENTITY_REL.getName()));
+    }
+
+  }
   public static void main(String[] args) {
 
     String dir = Variable.dirFormat("/Users/devops/workspace/kb/kb_system", true);
@@ -38,11 +59,17 @@ public class KbDataMigrationLocal extends DataMigration {
     kbDataMigration.setHgraknClient(hgraknClient);
     kbDataMigration.setBatchSize(10000);
     Collection<Input> inputs = new ArrayList<>();
-    List<EntityInput> entityInputs = Arrays.asList(
-      new EntityInput(dir + "kb_entity_entity_type.csv", Schema.Entity.ENTITY_TYPE_ENTITY.getName()),
-        new EntityInput(dir + "kb_entity_school_type.csv", Schema.Entity.SCHOOL_TYPE_ENTITY.getName())
-    );
+
+    /*
+    List<EntityInput> entityInputs = new ArrayList<>();
     inputs.addAll(entityInputs);
+    */
+
+    List<Input> relationInputs = new ArrayList<>();
+    kbDataMigration.migrateRelationInputs(dir,relationInputs);
+
+    inputs.addAll(relationInputs);
+
     kbDataMigration.connectAndMigrate(inputs);
 
   }

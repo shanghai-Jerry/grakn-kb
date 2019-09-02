@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import grakn.client.GraknClient;
+import grakn.core.concept.ConceptId;
+import grakn.core.concept.answer.ConceptList;
 import grakn.core.concept.answer.ConceptMap;
 import grakn.core.concept.answer.Numeric;
 import graql.lang.Graql;
@@ -18,6 +20,7 @@ import graql.lang.query.GraqlQuery;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
+import static graql.lang.Graql.match;
 import static graql.lang.Graql.var;
 
 /**
@@ -35,13 +38,57 @@ public class Kbquery {
   GraknClient.Session session =  hgraknClient.getClient().session(hgraknClient.getKeySpace());
   private static Logger logger = LoggerFactory.getLogger(CompanyEntity4GraknMapred.class);
 
-
-  void queryCount() {
+  String getEId(GraknClient.Transaction readTransaction,String name, String target) {
     long st = System.currentTimeMillis();
-    String query = "match\n" + "  $1 isa entitytype-entity, has name \"世界五百强\";\n" + "  $2 isa " +
-        "entitytype-entity, has name \"沃尔玛\";\n" + "  $4 (company-corptype:$1," +
-        "corptype-company:$2)" +
-        " isa company-corp-type;\n" + " get ;count;";
+    String ret = "";
+    String nameVar = Variable.getVarValue("1", name);
+    String targetVar = Variable.getVarValue("1", target);
+    GraqlQuery query = match(
+        var(nameVar).isa(Schema.Entity.ENTITY.getName())
+        .has(Schema.Attribute.NAME.getName(), name),
+        var(targetVar).isa(Schema.Entity.ENTITY.getName())
+            .has(Schema.Attribute.NAME.getName(), target)
+    ).get();
+    List<ConceptMap> answers = (List<ConceptMap>) readTransaction.execute(query);
+    String id2Name;
+    String id2Traget;
+    logger.info("answer size:" + answers.size());
+    if (answers.size() < 0) {
+      return  "";
+    }
+    id2Name = answers.get(0).get(nameVar).id().toString();
+    id2Traget = answers.get(0).get(targetVar).id().toString();
+    long et = System.currentTimeMillis();
+    System.out.println("get id cost: "+ TimeUtil.costTime(st,et) +",st:" + st + ",et:" + et);
+    String retVar = id2Name + "," + id2Traget;
+    logger.info("get ids:" + retVar);
+    return  retVar;
+  }
+
+  void queryCompute(GraknClient.Transaction readTransaction, String name, String target) {
+
+    long st = System.currentTimeMillis();
+    String id = getEId(readTransaction, name, target);
+    String []ids = id.split(",");
+    if (ids.length != 2) {
+      logger.info("not path");
+      return;
+    }
+    List<ConceptList> answers = readTransaction.execute(Graql.compute().path().from(ids[0]).to(ids[1]));
+    List<ConceptId> conceptIds = answers.get(0).list();
+    logger.info("path is:");
+    for (ConceptId conceptId : conceptIds) {
+      logger.info("id:" + conceptId);
+    }
+    long et = System.currentTimeMillis();
+
+    System.out.println("cost: "+ TimeUtil.costTime(st,et) +",st:" + st + ",et:" + et);
+    readTransaction.close();
+  }
+
+  void queryAggregate() {
+    long st = System.currentTimeMillis();
+    String query = "compute count in entity-type-entity;";
     int page = 1;
     int pageSize = 100;
     GraknClient.Transaction readTransaction = session.transaction().read();
@@ -106,8 +153,9 @@ public class Kbquery {
   public static void main( String[] args ) {
 
     Kbquery query = new Kbquery();
-
-    query.query();
+    GraknClient.Transaction writeTransaction = query.session.transaction().write();
+    GraknClient.Transaction readTransaction = query.session.transaction().read();
+    query.queryCompute(readTransaction,"速卖通", "bat");
     // transactions, sessions and clients must always be closed
     query.session.close();
     query.hgraknClient.getClient().close();

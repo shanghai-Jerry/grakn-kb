@@ -25,3 +25,11 @@ match $1 isa school-type-entity, has name "211";get;
 match $0 isa school-type-entity, has name $1;get;
 
 match $x id V194629800; get;
+
+
+compute count in school-type-entity;
+
+compute count in entity-type-entity;
+
+
+compute path from V42463416, to V34730192;

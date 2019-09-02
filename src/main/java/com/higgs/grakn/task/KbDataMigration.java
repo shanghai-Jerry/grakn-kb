@@ -1,18 +1,26 @@
 package com.higgs.grakn.task;
 
 import com.higgs.grakn.client.HgraknClient;
+import com.higgs.grakn.client.migration.AttributeInput;
 import com.higgs.grakn.client.migration.DataMigration;
+import com.higgs.grakn.client.migration.EntityInput;
 import com.higgs.grakn.client.migration.Input;
 import com.higgs.grakn.client.migration.RelationInput;
 import com.higgs.grakn.client.schema.Schema;
 import com.higgs.grakn.variable.Variable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import graql.lang.Graql;
+import graql.lang.query.GraqlQuery;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+
+import static graql.lang.Graql.var;
 
 /**
  * User: JerryYou
@@ -45,42 +53,16 @@ public class KbDataMigration extends DataMigration {
     kbDataMigration.setHgraknClient(hgraknClient);
     kbDataMigration.setBatchSize(10000);
     Collection<Input> inputs = new ArrayList<>();
-    /*
-    // kb_entity.csv
-    inputs.add(new Input(dir + "kb_entity.csv") {
-      @Override
-      public GraqlQuery template(JsonObject data) {
-        String name = data.getString("name");
-        return Graql.insert(
-          var(Variable.getVarValue(Schema.Entity.ENTITY.getName(), name))
-              .isa(Schema.Entity.ENTITY.getName())
-              .has(Schema.Attribute.NAME.getName(), name)
-        );
-      }
+    // 所有实体入库
+    List<EntityInput> entityInputs = Arrays.asList(
+        new EntityInput(dir + "kb_entity.csv", Schema.Entity.ENTITY.getName()),
+        new EntityInput(dir + "kb_entity_entity_type.csv",
+            Schema.Entity.ENTITY_TYPE_ENTITY.getName()),
+        new EntityInput(dir + "kb_entity_school_type.csv",
+            Schema.Entity.SCHOOL_TYPE_ENTITY.getName())
+    );
 
-      @Override
-      public List<JsonObject> parseDataToJson() {
-        List<JsonObject> items = new ArrayList<>();
-        try {
-          CsvReader csvReader = new CsvReader(kbDataMigration.getReader(this.getDataPath()));
-          // csvReader.readHeaders();
-          while(csvReader.readRecord()) {
-            String [] values = csvReader.getValues();
-            if (values.length != 2) {
-              continue;
-            }
-            JsonObject json = new JsonObject();
-            json.put("id", values[0]).put("name", values[1]);
-            items.add(json);
-          }
-        } catch (FileNotFoundException e) {
-          logger.info("[NoFile] =>" + e.getMessage());
-        } catch (IOException e) {
-          logger.info("[IOExp] =>" + e.getMessage());
-        }
-        return items;
-      }
-    });
+    inputs.addAll(entityInputs);
 
     List<Input> attributeInputs = Arrays.asList(
         new AttributeInput(dir + "corp_type.csv", Schema.Attribute.CORP_TYPE.getName()),
@@ -196,9 +178,8 @@ public class KbDataMigration extends DataMigration {
         return items;
       }
     });
-    */
-    List<RelationInput> relationInputs = new ArrayList<>();
 
+    List<RelationInput> relationInputs = new ArrayList<>();
     for (int i = 0; i <= 42; i++) {
       relationInputs.add(new RelationInput(dir + "relation_" + String.valueOf(i) + ".csv",
           Schema.Entity.ENTITY.getName(), Schema.Entity.ENTITY.getName(),
@@ -206,6 +187,7 @@ public class KbDataMigration extends DataMigration {
           Variable.relationPairs.get(i).getOutRel(),
           Schema.RelType.ENTITY_REL.getName()));
     }
+
 
     inputs.addAll(relationInputs);
 
