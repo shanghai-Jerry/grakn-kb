@@ -1,0 +1,6 @@
+
+
+# 都说英文的有哪些人(rule的应用)
+match  $1 "English" ;  $11 "French"; $2 (mutual-language:$1,mutual-language:$11,
+mutual-speaker:$4) isa speaking-language-mutuality;
+get $4;

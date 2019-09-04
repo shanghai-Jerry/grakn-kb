@@ -100,8 +100,9 @@ define
 		relates located-subject,
 		relates subject-location;
 
+    # 地点关系层级 (城市 - 国家)
 	location-hierarchy sub relation,
-		relates subordinate-location,
+		relates subordinate-location, #
 		relates superior-location;
 
 	ownership sub relation,
@@ -161,6 +162,7 @@ define
 		relates located-birth as located-subject,
 		relates birth-location as subject-location;
 
+    # relates: 新建关联， plays: 使用已有关联
 	birth sub relation,
 		has birth-date,
 		relates birthed-child,
@@ -184,6 +186,7 @@ define
 		relates mutual-birth-location,
 		relates mutual-birth;
 
+    # Rule的定义通常关联了两个实体，和这个两个实体之间的某一个关系
 	people-born-at-the-same-location sub rule,
 		when {
 			$b1 (birthed-child: $p1) isa birth;
@@ -257,16 +260,16 @@ define
 	location-of-residence sub location-of-everything,
 		relates located-residence as located-subject,
 		relates residence as subject-location;
-
+    # 人 - 居住地
 	residency sub periodic-event,
-		relates resident,
-		plays located-residence,
-		plays mutual-residency;
-
+		relates resident, # 人
+		plays located-residence, # 居住地
+		plays mutual-residency; # rule
+    # 人
 	person sub entity,
 		plays resident,
 		plays mutual-resident;
-
+    # 地点
 	location sub entity,
 		plays residence,
 		plays mutual-residence;
@@ -274,11 +277,11 @@ define
 	#########################
 	## residence in common ##
 	#########################
-
+    # rule-relation （关联三个维度：两个实体 + 关系）
 	residence-mutuality sub relation,
-		relates mutual-resident,
-		relates mutual-residency,
-		relates mutual-residence;
+		relates mutual-resident, # 人
+		relates mutual-residency, # 地点
+		relates mutual-residence; # rule
 
 	people-resided-at-the-same-location sub rule,
 		when {
@@ -306,6 +309,7 @@ define
 # 	$loc sub location;
 # get;
 
+    # 学校 - 地点
 	location-of-school sub location-of-everything,
 		relates located-school as located-subject,
 		relates school-location as subject-location;
@@ -342,7 +346,7 @@ define
 	##########################
 	## school offerings ##
 	##########################
-
+    #  rule: 关联两个实体也是可以的，可不需要关联实体之间的关系（没有相互共同的特征需要，类似间接推理的关系型）
 	school-course-offerring sub relation,
 		relates offerring-school,
 		relates offered-course;
@@ -357,7 +361,7 @@ define
 	##########################
 	## educations in common ##
 	##########################
-
+    # rule
 	school-mutuality sub relation,
 		relates schoolmate,
 		relates mutual-school;
@@ -372,7 +376,7 @@ define
 		}, then {
 			(schoolmate: $p1, schoolmate: $p2, mutual-school: $s) isa school-mutuality;
 		};
-
+    # rule
 	course-enrollment-mutuality sub relation,
 		relates coursemate,
 		relates mutual-course-enrollment;
@@ -418,10 +422,11 @@ define
 	#######################
 	## travels in common ##
 	#######################
-
+    # rule
 	travel-mutuality sub relation,
 		relates mutual-traveler,
 		relates mutual-travel,
+		# 关联相互共同的特征需要
 		relates mutual-travel-location;
 
 	people-traveled-to-the-same-location sub rule,
@@ -496,7 +501,7 @@ define
 	##########################
 	## employment in common ##
 	##########################
-
+    # rule: 相互共同作用在一个employment中
 	employment-mutuality sub relation,
 		relates mutual-employee,
 		relates mutual-employment,
@@ -510,7 +515,7 @@ define
 		}, then {
 			(mutual-employee: $p1, mutual-employee: $p2, mutual-organisation: $o, mutual-employment: $e1, mutual-employment: $e2) isa employment-mutuality;
 		};
-
+    # rule: 相互共同作用在一个employment中
 	work-position-mutuality sub relation,
 		relates mutual-employee,
 		relates mutual-employment,
@@ -550,6 +555,7 @@ define
 	## speaking languages in common ##
 	##################################
 
+	# 通过定义一种关系下有相互有共同特征的关联关系（rule），来获取更加多的信息
 	speaking-language-mutuality sub relation,
 		relates mutual-speaker,
 		relates mutual-language-speaking,
