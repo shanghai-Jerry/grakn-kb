@@ -108,7 +108,10 @@ public class Kbquery {
 
   void query() {
     long st = System.currentTimeMillis();
-    String query = "match $1 isa entitytype-entity, has name \"幼儿园教师资格\", has cert-code $2; get;\n";
+    String query = "match\n" + "$k isa entitytype-entity, has name \"速卖通\";\n" + "$ct isa " +
+        "entitytype-entity, has name \"世界五百强\";\n" + "(corptype-keyword: $k, keyword-corptype: " +
+        "$ct, relates-company:$c)" +
+        " isa keywords-of-corptype-rule;\n" + "get $c;\n";
     int page = 1;
     int pageSize = 100;
     GraknClient.Transaction readTransaction = session.transaction().read();
@@ -117,7 +120,7 @@ public class Kbquery {
     List<ConceptMap> answers = readTransaction.execute((GraqlGet) Graql.parse(query));
 
     answers.forEach(
-        answer -> logger.info("item:" + answer.get("2").asAttribute().value().toString())
+        answer -> logger.info("item:" + answer.get("c").id())
     );
     long et = System.currentTimeMillis();
 
@@ -155,8 +158,9 @@ public class Kbquery {
     Kbquery query = new Kbquery();
     GraknClient.Transaction writeTransaction = query.session.transaction().write();
     GraknClient.Transaction readTransaction = query.session.transaction().read();
-    query.queryCompute(readTransaction,"速卖通", "bat");
-    // transactions, sessions and clients must always be closed
+    // query.queryCompute(readTransaction,"速卖通", "bat");
+    query.query();
+    // sessions and clients must always be closed
     query.session.close();
     query.hgraknClient.getClient().close();
   }

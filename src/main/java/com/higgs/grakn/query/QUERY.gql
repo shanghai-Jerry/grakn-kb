@@ -9,7 +9,6 @@ match
 
 
  # 某个公司是不是世界五百强
-
  match
   $1 isa entitytype-entity, has name "世界五百强";
   $2 isa entitytype-entity, has name "百度";
@@ -24,12 +23,22 @@ match $1 isa school-type-entity, has name "211";get;
 
 match $0 isa school-type-entity, has name $1;get;
 
+# 通过id直接match
 match $x id V194629800; get;
 
-
+# compute
 compute count in school-type-entity;
 
 compute count in entity-type-entity;
 
-
+# xx公司 - xx集团 （直接）
 compute path from V42463416, to V34730192;
+
+# keyword - 公司 - 公司类型 （间接） keywords-of-corptype
+compute path from V107503784, to V7118992;
+
+match
+$k isa entitytype-entity, has name "速卖通";
+$ct isa entitytype-entity, has name "bat";
+(corptype-keyword: $k, keyword-corptype: $ct) isa keywords-of-corptype-rule;
+get $c;

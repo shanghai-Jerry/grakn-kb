@@ -66,6 +66,7 @@ weight sub attribute,
 # 实体关系 ##
 ############
 
+
 keywords-of-subject sub relation,
   abstract,
   relates keyword-subject,
@@ -310,6 +311,20 @@ entity-entity-type sub relation,
     relates etype-entity;
 
 
+keywords-of-corptype-rule sub keywords-of-subject,
+    relates relates-company,
+    relates keyword-corptype as keyword-subject,
+    relates corptype-keyword as  subject-keyword;
+
+is-keyword-in-oneof-corptype sub rule,
+   when {
+        (company-keyword:$k, keyword-company:$c) isa entity-rel;
+   		(company-corptype:$ct, corptype-company: $c) isa company-corp-type;
+   	}, then {
+   	    (corptype-keyword: $k, keyword-corptype: $ct, relates-company:$c) isa
+   	    keywords-of-corptype-rule;
+   	};
+
 #########
 # 实体 ##
 ########
@@ -446,5 +461,10 @@ entitytype-entity sub entity,
   plays company-corptype,
   plays corptype-company,
   plays schooltype-school,
-  plays etype-entity
+  plays etype-entity,
+  plays relates-company,
+  plays corptype-keyword,
+  plays keyword-corptype
   ;
+
+

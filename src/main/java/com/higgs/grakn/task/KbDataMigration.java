@@ -178,7 +178,7 @@ public class KbDataMigration extends DataMigration {
         return items;
       }
     });
-
+    // 其他关系
     List<RelationInput> relationInputs = new ArrayList<>();
     for (int i = 0; i <= 42; i++) {
       relationInputs.add(new RelationInput(dir + "relation_" + String.valueOf(i) + ".csv",
